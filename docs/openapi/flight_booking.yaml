@@ -1,0 +1,202 @@
+openapi: "3.0.0"
+
+info:
+  title: "Flight Booking Api Documentation"
+  version: "1.0.0"
+paths:
+  /auth/signup:
+    post:
+      description: "sign up"
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signup'
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignupResponse'
+        '400':
+          description: "invalid request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /auth/signin:
+    post:
+      description: "sign in"
+      tags:
+        - auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Signin'
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SigninResponse'
+        '400':
+          description: "invalid request"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: "server error"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /flights:
+    get:
+      description: "get all flights"
+      tags:
+        - flights
+      responses:
+        '200':
+          description: "ok"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Flight'
+
+
+
+components:
+  schemas:
+
+    Signup:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    SignupResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    Signin:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    SigninResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+
+    Flight:
+      type: object
+      required:
+        - start_date
+        - end_date
+        - departure
+        - destination
+      properties:
+        id:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        departure:
+          type: string
+        destination:
+          type: string
+        creation_date:
+          type: string
+        ticket_prices:
+          type: object
+
+    TicketRank:
+      type: object
+      properties:
+        name:
+          type: string
+
+    FlightPrice:
+      type: object
+      required:
+        - rank
+        - price
+      properties:
+        flight_id:
+          type: string
+          description: reference to flight id
+        rank:
+          type: string
+          description: reference to ticker rank name
+        price:
+          type: integer
+
+    Ticket:
+      type: object
+      properties:
+        flight_id:
+          type: string
+          description: reference to flight id
+        rank:
+          type: string
+          description: reference to rank name
+        price:
+          type: integer
+        creation_date:
+          type: string
+        user_id:
+          type: string
+          description: reference to user id
+
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
