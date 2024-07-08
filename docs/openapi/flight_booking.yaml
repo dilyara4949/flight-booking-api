@@ -1,4 +1,6 @@
 openapi: "3.0.0"
+servers:
+  - url: localhost:8080/api
 info:
   title: "Flight Booking API Documentation"
   version: "1.0.0"
@@ -231,7 +233,6 @@ paths:
       description: "Get all flights"
       tags:
         - flights
-        - admin
       security:
         - BearerAuth: [ ]
       responses:
@@ -259,7 +260,6 @@ paths:
       description: "Create a new flight"
       tags:
         - flights
-        - admin
       security:
         - BearerAuth: [ ]
       requestBody:
@@ -305,7 +305,6 @@ paths:
       description: "Get a flight by ID"
       tags:
         - flights
-        - admin
       security:
         - BearerAuth: [ ]
       responses:
@@ -343,7 +342,6 @@ paths:
       description: "Update a flight by ID"
       tags:
         - flights
-        - admin
       security:
         - BearerAuth: [ ]
       requestBody:
@@ -388,7 +386,6 @@ paths:
       description: "Delete a flight by ID"
       tags:
         - flights
-        - admin
       security:
         - BearerAuth: [ ]
       responses:
@@ -454,13 +451,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/userId:
+  /users/{userId}:
     parameters:
-    - name: userId
-      in: path
-      required: true
-      schema:
-        type: string
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
     put:
       description: "Update user but userId"
       tags:
@@ -540,7 +537,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /tickets:
+  /users/tickets:
     post:
       description: "Book a ticket"
       tags:
@@ -585,11 +582,9 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/tickets:
     get:
       description: "Get all tickets of the user"
       tags:
-        - user
         - tickets
       security:
         - BearerAuth: []
@@ -641,7 +636,6 @@ paths:
         - BearerAuth: []
       tags:
         - tickets
-        - users
       responses:
         '200':
           description: "OK"
@@ -676,7 +670,6 @@ paths:
     put:
       description: "Update ticket by its id"
       tags:
-        - users
         - tickets
       security:
         - BearerAuth: []
@@ -720,7 +713,6 @@ paths:
     delete:
       description: "Delete ticket by its id"
       tags:
-        - users
         - tickets
       security:
         - BearerAuth: [ ]
