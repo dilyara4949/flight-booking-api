@@ -43,3 +43,7 @@ CREATE TABLE tickets (
                         FOREIGN KEY (user_id) REFERENCES Users(id),
                         FOREIGN KEY (rank) REFERENCES Ranks(name)
 );
+
+
+insert into roles (name) values ('user'), ('admin');
+insert into ranks (name) values ('economy'), ('business'), ('deluxe')
