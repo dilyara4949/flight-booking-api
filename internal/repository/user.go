@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -25,23 +26,23 @@ var (
 )
 
 const (
-	createUser  = "insert into users (id, email, password, phone, role_id) values ($1, $2, $3, $4, $5) returnig created_at, updated_at"
-	getUser     = "select id, email, phone, created_at, updated_at, role_id from users where id = $1;"
+	createUser  = "insert into users (id, email, password, phone, role) values ($1, $2, $3, $4, 'user') returnig created_at, updated_at"
+	getUser     = "select id, email, phone, created_at, updated_at from users where id = $1;"
 	updateUser  = "update users set email = $2, phone = $3, updated_at = CURRENT_TIMESTAMP where id = $1;"
 	deleteUsers = "delete from users where id = $1"
-	getAllUsers = "select id, email, phone, role_id, created_at, updated_at from users limit $1 offset $2;"
+	getAllUsers = "select id, email, phone, created_at, updated_at from users limit $1 offset $2;"
 )
 
-func (repo *userRepository) Create(ctx context.Context, user domain.User, password string) (*domain.User, error) {
+func (repo *userRepository) Create(ctx context.Context, user *domain.User, password string) error {
 	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout*time.Second)
 	defer cancel()
 
 	user.ID = uuid.New().String()
 
 	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
-		return nil, err
+		return fmt.Errorf("create user error: %v", err)
 	}
-	return &user, nil
+	return nil
 }
 
 func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, error) {
@@ -57,7 +58,7 @@ func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, e
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrUserNotFound
 		}
-		return nil, err
+		return nil, fmt.Errorf("get user error: %v", err)
 	}
 
 	return &user, nil
@@ -69,7 +70,7 @@ func (repo *userRepository) Update(ctx context.Context, user domain.User) error 
 
 	res, err := repo.db.ExecContext(ctx, updateUser, user.ID, user.Email, user.Phone)
 	if err != nil {
-		return err
+		return fmt.Errorf("update user error: %v", err)
 	}
 
 	if cnt, _ := res.RowsAffected(); cnt != 1 {
@@ -84,7 +85,7 @@ func (repo *userRepository) Delete(ctx context.Context, id string) error {
 
 	res, err := repo.db.ExecContext(ctx, deleteUsers, id)
 	if err != nil {
-		return err
+		return fmt.Errorf("delete user error: %v", err)
 	}
 
 	if cnt, _ := res.RowsAffected(); cnt != 1 {
@@ -101,7 +102,7 @@ func (repo *userRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 
 	rows, err := repo.db.QueryContext(ctx, getAllUsers, pageSize, offset)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("get all users error: %v", err)
 	}
 	defer rows.Close()
 
