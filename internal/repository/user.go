@@ -4,9 +4,10 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"time"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/google/uuid"
-	"time"
 )
 
 type userRepository struct {
@@ -37,7 +38,7 @@ func (repo *userRepository) Create(ctx context.Context, user domain.User, passwo
 
 	user.ID = uuid.New().String()
 
-	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone, user.RoleID).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
+	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
 		return nil, err
 	}
 	return &user, nil
@@ -51,7 +52,7 @@ func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, e
 
 	user := domain.User{}
 
-	err := row.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt, &user.RoleID)
+	err := row.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return nil, ErrUserNotFound
@@ -109,7 +110,7 @@ func (repo *userRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 	for rows.Next() {
 		user := domain.User{}
 
-		err = rows.Scan(&user.ID, &user.Email, &user.Phone, &user.RoleID, &user.CreatedAt, &user.UpdatedAt)
+		err = rows.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return nil, err
 		}
