@@ -45,5 +45,5 @@ CREATE TABLE tickets (
 );
 
 
-insert into roles (name) values ('user'), ('admin');
-insert into ranks (name) values ('economy'), ('business'), ('deluxe')
+INSERT INTO roles (name) VALUES ('user'), ('admin');
+INSERT INTO into ranks (name) VALUES ('economy'), ('business'), ('deluxe')
