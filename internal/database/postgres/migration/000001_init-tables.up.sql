@@ -1,5 +1,5 @@
 CREATE TABLE roles (
-                      role VARCHAR PRIMARY KEY
+                      name VARCHAR PRIMARY KEY
 );
 
 CREATE TABLE users (
@@ -10,11 +10,11 @@ CREATE TABLE users (
                       role VARCHAR,
                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      FOREIGN KEY (role) REFERENCES Roles(role)
+                      FOREIGN KEY (role) REFERENCES Roles(name)
 );
 
 CREATE TABLE ranks (
-                      rank VARCHAR PRIMARY KEY
+                      name VARCHAR PRIMARY KEY
 );
 
 CREATE TABLE flights (
@@ -28,7 +28,7 @@ CREATE TABLE flights (
                         total_tickets INT,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (rank) REFERENCES Ranks(rank)
+                        FOREIGN KEY (rank) REFERENCES Ranks(name)
 );
 
 CREATE TABLE tickets (
@@ -41,5 +41,5 @@ CREATE TABLE tickets (
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (flight_id) REFERENCES Flights(id),
                         FOREIGN KEY (user_id) REFERENCES Users(id),
-                        FOREIGN KEY (rank) REFERENCES Ranks(rank)
+                        FOREIGN KEY (rank) REFERENCES Ranks(name)
 );
