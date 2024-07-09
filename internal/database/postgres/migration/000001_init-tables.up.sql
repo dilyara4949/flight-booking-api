@@ -1,6 +1,5 @@
 CREATE TABLE roles (
-                      id UUID PRIMARY KEY,
-                      role VARCHAR UNIQUE NOT NULL
+                      role VARCHAR PRIMARY KEY
 );
 
 CREATE TABLE users (
@@ -8,15 +7,14 @@ CREATE TABLE users (
                       email VARCHAR UNIQUE NOT NULL,
                       password VARCHAR NOT NULL,
                       phone VARCHAR,
-                      role_id UUID,
+                      role VARCHAR,
                       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                       updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                      FOREIGN KEY (role_id) REFERENCES Roles(id)
+                      FOREIGN KEY (role) REFERENCES Roles(role)
 );
 
 CREATE TABLE ranks (
-                      id UUID PRIMARY KEY,
-                      rank VARCHAR UNIQUE NOT NULL
+                      rank VARCHAR PRIMARY KEY
 );
 
 CREATE TABLE flights (
@@ -25,12 +23,12 @@ CREATE TABLE flights (
                         end_date TIMESTAMP,
                         departure VARCHAR,
                         destination VARCHAR,
-                        rank_id UUID,
+                        rank VARCHAR,
                         price BIGINT,
                         total_tickets INT,
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                        FOREIGN KEY (rank_id) REFERENCES Ranks(id)
+                        FOREIGN KEY (rank) REFERENCES Ranks(rank)
 );
 
 CREATE TABLE tickets (
@@ -42,5 +40,6 @@ CREATE TABLE tickets (
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         FOREIGN KEY (flight_id) REFERENCES Flights(id),
-                        FOREIGN KEY (user_id) REFERENCES Users(id)
+                        FOREIGN KEY (user_id) REFERENCES Users(id),
+                        FOREIGN KEY (rank) REFERENCES Ranks(rank)
 );
