@@ -2,13 +2,22 @@ package route
 
 import (
 	"database/sql"
+	"github.com/dilyara4949/flight-booking-api/internal/handler"
+	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	"github.com/dilyara4949/flight-booking-api/internal/service"
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
-func Setup(cfg config.Config, db *sql.DB, gin *gin.Engine) {
+func NewAPI(cfg config.Config, db *sql.DB, gin *gin.Engine) {
+
 	publicRouter := gin.Group("/api")
 
-	NewSignupRoute(cfg, db, publicRouter)
+	repo := repository.NewUserRepository(db)
+	authService := service.NewAuthService(repo)
+	authController := handler.NewAuthHandler(authService, cfg)
+
+	publicRouter.POST("signup", authController.Signup)
+
 }
