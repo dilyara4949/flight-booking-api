@@ -50,9 +50,9 @@ func (controller *AuthController) Signup(c *gin.Context) {
 		return
 	}
 
-	token, err := controller.Service.CreateAccessToken(user, controller.Config.JWTTokenSecret, controller.Config.AccessTokenExpire)
+	token, err := controller.Service.CreateAccessToken(c, user, controller.Config.JWTTokenSecret, controller.Config.AccessTokenExpire)
 	if err != nil {
-		slog.Error("signup: error at creating acces token,", err)
+		slog.Error("signup: error at creating access token,", err)
 
 		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "create access token error"})
 		return
