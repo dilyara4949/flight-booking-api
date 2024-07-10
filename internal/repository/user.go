@@ -2,50 +2,48 @@ package repository
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 )
 
 type UserRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
+func NewUserRepository(db *gorm.DB) UserRepository {
 	return UserRepository{db: db}
 }
 
 var (
-	ErrUserNotFound   = errors.New("user not found")
-	ErrNothingChanged = errors.New("nothing changed")
-)
-
-const (
-	createUser  = "insert into users (id, email, password, phone, role) values ($1, $2, $3, $4, 'user') returning created_at, updated_at"
-	getUser     = "select id, email, phone, created_at, updated_at from users where id = $1;"
-	updateUser  = "update users set email = $2, phone = $3, updated_at = CURRENT_TIMESTAMP where id = $1;"
-	deleteUsers = "delete from users where id = $1"
-	getAllUsers = "select id, email, phone, created_at, updated_at from users limit $1 offset $2;"
+	ErrUserNotFound = errors.New("user not found")
 )
 
 func (repo *UserRepository) Create(ctx context.Context, user *domain.User, password string) error {
-	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
+	user.ID = uuid.New()
+	user.Password = password
+
+	var role domain.Role
+	if err := repo.db.WithContext(ctx).Where("name = ?", "user").First(&role).Error; err != nil {
+		return fmt.Errorf("failed to find role 'user': %v", err)
+	}
+	user.Role = role
+	user.RoleID = role.ID
+
+	if err := repo.db.WithContext(ctx).Create(&user).Error; err != nil {
 		return fmt.Errorf("create user error: %v", err)
 	}
 	return nil
 }
 
 func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	row := repo.db.QueryRowContext(ctx, getUser, id)
-
 	user := domain.User{}
 
-	err := row.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+	if err := repo.db.WithContext(ctx).First(&user, "id = ?", id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrUserNotFound
 		}
 		return nil, fmt.Errorf("get user error: %v", err)
@@ -55,49 +53,27 @@ func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User
 }
 
 func (repo *UserRepository) Update(ctx context.Context, user domain.User) error {
-	res, err := repo.db.ExecContext(ctx, updateUser, user.ID, user.Email, user.Phone)
-	if err != nil {
+	if err := repo.db.WithContext(ctx).Save(&user).Error; err != nil {
 		return fmt.Errorf("update user error: %v", err)
-	}
-
-	if cnt, _ := res.RowsAffected(); cnt != 1 {
-		return ErrNothingChanged
 	}
 	return nil
 }
 
 func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	res, err := repo.db.ExecContext(ctx, deleteUsers, id)
-	if err != nil {
+	if err := repo.db.WithContext(ctx).Delete(&domain.User{}, id).Error; err != nil {
 		return fmt.Errorf("delete user error: %v", err)
-	}
-
-	if cnt, _ := res.RowsAffected(); cnt != 1 {
-		return ErrNothingChanged
 	}
 	return nil
 }
 
 func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+	var users []domain.User
+
 	offset := (page - 1) * pageSize
 
-	rows, err := repo.db.QueryContext(ctx, getAllUsers, pageSize, offset)
-	if err != nil {
+	if err := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset).Find(&users).Error; err != nil {
 		return nil, fmt.Errorf("get all users error: %v", err)
 	}
-	defer rows.Close()
 
-	users := make([]domain.User, 0)
-
-	for rows.Next() {
-		user := domain.User{}
-
-		err = rows.Scan(&user.ID, &user.Email, &user.Phone, &user.CreatedAt, &user.UpdatedAt)
-		if err != nil {
-			return nil, err
-		}
-
-		users = append(users, user)
-	}
 	return users, nil
 }

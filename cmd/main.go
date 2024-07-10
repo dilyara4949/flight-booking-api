@@ -29,7 +29,15 @@ func runServer() error {
 	if err != nil {
 		return fmt.Errorf("database connection failed: %w", err)
 	}
-	defer database.Close()
+
+	defer func() {
+		sqlDB, err := database.DB()
+		if err != nil {
+			log.Printf("Error getting sql.DB from gorm.DB: %v", err)
+			return
+		}
+		sqlDB.Close()
+	}()
 
 	ginRouter := gin.Default()
 	route.NewAPI(cfg, database, ginRouter)
