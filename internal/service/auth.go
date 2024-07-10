@@ -19,7 +19,7 @@ type Claims struct {
 }
 
 type AuthService struct {
-	repo           repository.UserRepository
+	repo           repository.IUserRepository
 	contextTimeout time.Duration
 }
 type IAuthService interface {
@@ -29,7 +29,7 @@ type IAuthService interface {
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-func NewAuthService(userRepo repository.UserRepository, contextTimeout time.Duration) IAuthService {
+func NewAuthService(userRepo repository.IUserRepository, contextTimeout time.Duration) IAuthService {
 	return &AuthService{
 		repo:           userRepo,
 		contextTimeout: contextTimeout,

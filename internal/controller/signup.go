@@ -11,7 +11,7 @@ import (
 )
 
 type AuthController struct {
-	Service service.AuthService
+	Service service.IAuthService
 	Config  config.Config
 }
 
@@ -24,7 +24,7 @@ type SignupResponse struct {
 	User        domain.User
 }
 
-func NewAuthController(service service.AuthService, cfg config.Config) *AuthController {
+func NewAuthController(service service.IAuthService, cfg config.Config) *AuthController {
 	return &AuthController{Service: service, Config: cfg}
 }
 

@@ -2,6 +2,8 @@ package config
 
 import (
 	"errors"
+	"fmt"
+	"github.com/vrischmann/envconfig"
 	"os"
 	"strconv"
 	"time"
@@ -61,6 +63,14 @@ type PostgresCfg struct {
 }
 
 func NewConfig() (Config, error) {
+
+	cfg := Config{}
+
+	if err := envconfig.Init(&cfg); err != nil {
+		fmt.Printf("err=%s\n", err)
+	}
+	fmt.Println(cfg)
+
 	errs := make([]error, 0)
 
 	jwtTokenSecret := os.Getenv(jwtTokenSecretEnv)
