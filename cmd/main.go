@@ -11,16 +11,15 @@ import (
 )
 
 func main() {
-	logger := slog.Default()
 
 	cfg, err := config.NewConfig()
 	if err != nil {
-		logger.Error("error at getting config:", err.Error())
+		slog.Error("error at getting config:", err.Error())
 	}
 
 	database, err := postgres.ConnectPostgres(cfg.PostgresCfg)
 	if err != nil {
-		logger.Error("database connection failed:", err.Error())
+		slog.Error("database connection failed:", err.Error())
 	}
 
 	defer database.Close()
@@ -30,6 +29,6 @@ func main() {
 
 	err = ginRouter.Run(fmt.Sprintf("%s:%s", cfg.Address, cfg.RestPort))
 	if err != nil {
-		logger.Error("server failed to start:", err.Error())
+		slog.Error("server failed to start:", err.Error())
 	}
 }
