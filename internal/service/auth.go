@@ -18,25 +18,25 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type authService struct {
+type AuthService struct {
 	repo           repository.UserRepository
 	contextTimeout time.Duration
 }
-type AuthService interface {
+type IAuthService interface {
 	CreateUser(ctx context.Context, user *domain.User, password string) error
 	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-func NewAuthService(userRepo repository.UserRepository, contextTimeout time.Duration) AuthService {
-	return &authService{
+func NewAuthService(userRepo repository.UserRepository, contextTimeout time.Duration) IAuthService {
+	return &AuthService{
 		repo:           userRepo,
 		contextTimeout: contextTimeout,
 	}
 }
 
-func (service *authService) CreateUser(ctx context.Context, user *domain.User, password string) error {
+func (service *AuthService) CreateUser(ctx context.Context, user *domain.User, password string) error {
 	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
 	defer cancel()
 
@@ -52,21 +52,21 @@ func (service *authService) CreateUser(ctx context.Context, user *domain.User, p
 
 	return service.repo.Create(ctx, user, string(encryptedPassword))
 }
-func (service *authService) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (service *AuthService) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
 	defer cancel()
 
 	return service.repo.Get(ctx, id)
 }
 
-func (service *authService) DeleteUser(ctx context.Context, id uuid.UUID) error {
+func (service *AuthService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
 	defer cancel()
 
 	return service.repo.Delete(ctx, id)
 }
 
-func (service *authService) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (accessToken string, err error) {
+func (service *AuthService) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (accessToken string, err error) {
 	expirationTime := time.Now().Add(time.Duration(expiry) * time.Hour)
 	claims := &Claims{
 		UserID: user.ID,

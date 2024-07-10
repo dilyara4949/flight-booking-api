@@ -10,11 +10,11 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 )
 
-type userRepository struct {
+type UserRepository struct {
 	db *sql.DB
 }
 
-type UserRepository interface {
+type IUserRepository interface {
 	Create(ctx context.Context, user *domain.User, password string) error
 	Get(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	Update(ctx context.Context, user domain.User) error
@@ -22,8 +22,8 @@ type UserRepository interface {
 	GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error)
 }
 
-func NewUserRepository(db *sql.DB) UserRepository {
-	return &userRepository{db: db}
+func NewUserRepository(db *sql.DB) IUserRepository {
+	return &UserRepository{db: db}
 }
 
 var (
@@ -39,14 +39,14 @@ const (
 	getAllUsers = "select id, email, phone, created_at, updated_at from users limit $1 offset $2;"
 )
 
-func (repo *userRepository) Create(ctx context.Context, user *domain.User, password string) error {
+func (repo *UserRepository) Create(ctx context.Context, user *domain.User, password string) error {
 	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
 		return fmt.Errorf("create user error: %v", err)
 	}
 	return nil
 }
 
-func (repo *userRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	row := repo.db.QueryRowContext(ctx, getUser, id)
 
 	user := domain.User{}
@@ -62,7 +62,7 @@ func (repo *userRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User
 	return &user, nil
 }
 
-func (repo *userRepository) Update(ctx context.Context, user domain.User) error {
+func (repo *UserRepository) Update(ctx context.Context, user domain.User) error {
 	res, err := repo.db.ExecContext(ctx, updateUser, user.ID, user.Email, user.Phone)
 	if err != nil {
 		return fmt.Errorf("update user error: %v", err)
@@ -74,7 +74,7 @@ func (repo *userRepository) Update(ctx context.Context, user domain.User) error 
 	return nil
 }
 
-func (repo *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
+func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	res, err := repo.db.ExecContext(ctx, deleteUsers, id)
 	if err != nil {
 		return fmt.Errorf("delete user error: %v", err)
@@ -86,7 +86,7 @@ func (repo *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (repo *userRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
 	offset := (page - 1) * pageSize
 
 	rows, err := repo.db.QueryContext(ctx, getAllUsers, pageSize, offset)
