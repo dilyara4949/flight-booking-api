@@ -1,3 +1,8 @@
+GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.57.2 golangci-lint
+
+lint:
+	  $(GOLANGCILINT) run -v --enable-all
+
 run:
 	go run cmd/main.go
 

@@ -1,21 +1,30 @@
 package controller
 
 import (
-	"log"
+	"github.com/dilyara4949/flight-booking-api/internal/service"
+	"log/slog"
 	"net/http"
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthController struct {
-	Service domain.AuthService
+	Service service.AuthService
 	Config  config.Config
 }
 
-func NewAuthController(service domain.AuthService, cfg config.Config) *AuthController {
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+type SignupResponse struct {
+	AccessToken string
+	User        domain.User
+}
+
+func NewAuthController(service service.AuthService, cfg config.Config) *AuthController {
 	return &AuthController{Service: service, Config: cfg}
 }
 
@@ -24,46 +33,32 @@ func (controller *AuthController) Signup(c *gin.Context) {
 
 	err := c.ShouldBind(&request)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "incorrect request body"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "incorrect request body"})
 		return
 	}
 
 	if request.Password == "" || request.Email == "" {
-		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "fields cannot be empty"})
-		return
-	}
-
-	encryptedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(request.Password),
-		bcrypt.DefaultCost,
-	)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "generate password error"})
+		c.JSON(http.StatusBadRequest, ErrorResponse{Error: "fields cannot be empty"})
 		return
 	}
 
 	user := domain.User{Email: request.Email}
 
-	err = controller.Service.CreateUser(c, &user, string(encryptedPassword))
+	err = controller.Service.CreateUser(c, &user, request.Password)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: err.Error()})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
 		return
 	}
 
-	token, err := controller.Service.CreateAccessToken(user.ID, controller.Config.JWTTokenSecret, controller.Config.AccessTokenExpire)
+	token, err := controller.Service.CreateAccessToken(user, controller.Config.JWTTokenSecret, controller.Config.AccessTokenExpire)
 	if err != nil {
-		log.Printf("signup: error at creating acces token, %v", err)
+		slog.Error("signup: error at creating acces token,", err)
 
-		err = controller.Service.DeleteUser(c, user.ID)
-		if err != nil {
-			log.Printf("delete user failed: %v", err)
-		}
-
-		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "create access token error"})
+		c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "create access token error"})
 		return
 	}
 
-	response := domain.SignupResponse{
+	response := SignupResponse{
 		AccessToken: token,
 		User:        user,
 	}

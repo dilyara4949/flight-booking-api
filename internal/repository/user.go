@@ -5,19 +5,24 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/google/uuid"
 )
 
 type userRepository struct {
-	db             *sql.DB
-	contextTimeout time.Duration
+	db *sql.DB
 }
 
-func NewUserRepository(db *sql.DB, timeout time.Duration) domain.UserRepository {
-	return &userRepository{db: db, contextTimeout: timeout}
+type UserRepository interface {
+	Create(ctx context.Context, user *domain.User, password string) error
+	Get(ctx context.Context, id string) (*domain.User, error)
+	Update(ctx context.Context, user domain.User) error
+	Delete(ctx context.Context, id string) error
+	GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error)
+}
+
+func NewUserRepository(db *sql.DB) UserRepository {
+	return &userRepository{db: db}
 }
 
 var (
@@ -34,11 +39,6 @@ const (
 )
 
 func (repo *userRepository) Create(ctx context.Context, user *domain.User, password string) error {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
-	defer cancel()
-
-	user.ID = uuid.New().String()
-
 	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
 		return fmt.Errorf("create user error: %v", err)
 	}
@@ -46,9 +46,6 @@ func (repo *userRepository) Create(ctx context.Context, user *domain.User, passw
 }
 
 func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
-	defer cancel()
-
 	row := repo.db.QueryRowContext(ctx, getUser, id)
 
 	user := domain.User{}
@@ -65,9 +62,6 @@ func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, e
 }
 
 func (repo *userRepository) Update(ctx context.Context, user domain.User) error {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
-	defer cancel()
-
 	res, err := repo.db.ExecContext(ctx, updateUser, user.ID, user.Email, user.Phone)
 	if err != nil {
 		return fmt.Errorf("update user error: %v", err)
@@ -80,9 +74,6 @@ func (repo *userRepository) Update(ctx context.Context, user domain.User) error 
 }
 
 func (repo *userRepository) Delete(ctx context.Context, id string) error {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
-	defer cancel()
-
 	res, err := repo.db.ExecContext(ctx, deleteUsers, id)
 	if err != nil {
 		return fmt.Errorf("delete user error: %v", err)
@@ -95,9 +86,6 @@ func (repo *userRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (repo *userRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
-	defer cancel()
-
 	offset := (page - 1) * pageSize
 
 	rows, err := repo.db.QueryContext(ctx, getAllUsers, pageSize, offset)

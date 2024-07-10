@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
@@ -11,14 +11,16 @@ import (
 )
 
 func main() {
+	logger := slog.Default()
+
 	cfg, err := config.NewConfig()
 	if err != nil {
-		log.Fatalf("error at getting config: %v", err)
+		logger.Error("error at getting config:", err.Error())
 	}
 
 	database, err := postgres.ConnectPostgres(cfg.PostgresCfg)
 	if err != nil {
-		log.Fatalf("database connection failed: %v", err)
+		logger.Error("database connection failed:", err.Error())
 	}
 
 	defer database.Close()
@@ -28,6 +30,6 @@ func main() {
 
 	err = ginRouter.Run(fmt.Sprintf("%s:%s", cfg.Address, cfg.RestPort))
 	if err != nil {
-		log.Fatalf("server failed to start: %v", err)
+		logger.Error("server failed to start:", err.Error())
 	}
 }
