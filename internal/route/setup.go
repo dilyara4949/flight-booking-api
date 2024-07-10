@@ -16,8 +16,7 @@ func NewAPI(cfg config.Config, db *sql.DB, gin *gin.Engine) {
 
 	repo := repository.NewUserRepository(db)
 	authService := service.NewAuthService(repo)
-	authController := handler.NewAuthHandler(authService, cfg)
 
-	publicRouter.POST("signup", authController.Signup)
+	publicRouter.POST("signup", handler.SignupHandler(authService, cfg))
 
 }
