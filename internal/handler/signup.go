@@ -2,8 +2,10 @@ package handler
 
 import (
 	service2 "github.com/dilyara4949/flight-booking-api/internal/service"
+	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
+	"time"
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -21,7 +23,15 @@ type ErrorResponse struct {
 
 type signupResponse struct {
 	AccessToken string
-	User        domain.User
+	User        UserResponse
+}
+
+type UserResponse struct {
+	ID        uuid.UUID `json:"id"`
+	Email     string    `json:"email"`
+	Phone     string    `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
 
 func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerFunc {
@@ -57,8 +67,18 @@ func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerF
 
 		response := signupResponse{
 			AccessToken: token,
-			User:        user,
+			User:        domainUserToResponse(user),
 		}
 		c.JSON(http.StatusOK, response)
+	}
+}
+
+func domainUserToResponse(user domain.User) UserResponse {
+	return UserResponse{
+		ID:        user.ID,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
 }
