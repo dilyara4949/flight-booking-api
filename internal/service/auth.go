@@ -29,6 +29,11 @@ func (service *authService) CreateUser(ctx context.Context, user *domain.User, p
 func (service *authService) GetUser(ctx context.Context, id string) (*domain.User, error) {
 	return service.repo.Get(ctx, id)
 }
+
+func (service *authService) DeleteUser(ctx context.Context, id string) error {
+	return service.repo.Delete(ctx, id)
+}
+
 func (service *authService) CreateAccessToken(userID string, jwtSecret string, expiry int) (accessToken string, err error) {
 	expirationTime := time.Now().Add(time.Duration(expiry) * time.Hour)
 	claims := &Claims{
@@ -39,5 +44,5 @@ func (service *authService) CreateAccessToken(userID string, jwtSecret string, e
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString(jwtSecret)
+	return token.SignedString([]byte(jwtSecret))
 }

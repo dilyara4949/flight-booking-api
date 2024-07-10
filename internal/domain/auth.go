@@ -9,11 +9,12 @@ type Signup struct {
 
 type SignupResponse struct {
 	AccessToken string
-	User
+	User        User
 }
 
 type AuthService interface {
 	CreateUser(ctx context.Context, user *User, password string) error
 	GetUser(ctx context.Context, id string) (*User, error)
+	DeleteUser(ctx context.Context, id string) error
 	CreateAccessToken(userID string, secret string, expiry int) (accessToken string, err error)
 }

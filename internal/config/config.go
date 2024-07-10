@@ -124,11 +124,11 @@ func NewConfig() (Config, error) {
 	}
 
 	postgresContextTimeoutStr := os.Getenv(postgresContextTimeoutEnv)
-	if postgresTimeoutStr == "" {
+	if postgresContextTimeoutStr == "" {
 		errs = append(errs, errMissingPostgresContextTimeout)
 	}
 
-	postgresRequstTimeout, err := strconv.Atoi(postgresContextTimeoutStr)
+	postgresContextTimeout, err := strconv.Atoi(postgresContextTimeoutStr)
 	if err != nil {
 		errs = append(errs, errPostgresContextTimeoutType)
 	}
@@ -158,7 +158,7 @@ func NewConfig() (Config, error) {
 			postgresUser,
 			postgresPassword,
 			postgresName,
-			time.Second * time.Duration(postgresRequstTimeout),
+			time.Second * time.Duration(postgresContextTimeout),
 			postgresTimeout,
 			postgresMaxconn,
 		},

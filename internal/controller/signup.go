@@ -28,6 +28,11 @@ func (controller *AuthController) Signup(c *gin.Context) {
 		return
 	}
 
+	if request.Password == "" || request.Email == "" {
+		c.JSON(http.StatusBadRequest, domain.ErrorResponse{Error: "fields cannot be empty"})
+		return
+	}
+
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(request.Password),
 		bcrypt.DefaultCost,
@@ -48,7 +53,14 @@ func (controller *AuthController) Signup(c *gin.Context) {
 	token, err := controller.Service.CreateAccessToken(user.ID, controller.Config.JWTTokenSecret, controller.Config.AccessTokenExpire)
 	if err != nil {
 		log.Printf("signup: error at creating acces token, %v", err)
+
+		err = controller.Service.DeleteUser(c, user.ID)
+		if err != nil {
+			log.Printf("delete user failed: %v", err)
+		}
+
 		c.JSON(http.StatusInternalServerError, domain.ErrorResponse{Error: "create access token error"})
+		return
 	}
 
 	response := domain.SignupResponse{

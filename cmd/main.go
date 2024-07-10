@@ -15,17 +15,16 @@ func main() {
 	if err != nil {
 		log.Fatalf("error at getting config: %v", err)
 	}
-	fmt.Println(cfg.ContextTimeout)
 
-	db, err := postgres.ConnectPostgres(cfg.PostgresCfg)
+	database, err := postgres.ConnectPostgres(cfg.PostgresCfg)
 	if err != nil {
 		log.Fatalf("database connection failed: %v", err)
 	}
 
-	defer db.Close()
+	defer database.Close()
 
 	ginRouter := gin.Default()
-	route.Setup(cfg, db, ginRouter)
+	route.Setup(cfg, database, ginRouter)
 
 	err = ginRouter.Run(fmt.Sprintf("%s:%s", cfg.Address, cfg.RestPort))
 	if err != nil {

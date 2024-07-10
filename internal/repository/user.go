@@ -37,8 +37,6 @@ func (repo *userRepository) Create(ctx context.Context, user *domain.User, passw
 	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
 	defer cancel()
 
-	fmt.Println(repo.contextTimeout * time.Second)
-
 	user.ID = uuid.New().String()
 
 	if err := repo.db.QueryRowContext(ctx, createUser, user.ID, user.Email, password, user.Phone).Scan(&user.CreatedAt, &user.UpdatedAt); err != nil {
