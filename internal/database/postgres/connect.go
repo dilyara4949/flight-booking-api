@@ -9,15 +9,15 @@ import (
 	"time"
 )
 
-func ConnectPostgres(cfg config.PostgresCfg) (*sql.DB, error) {
-	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.Name)
+func ConnectPostgres(cfg config.Postgres) (*sql.DB, error) {
+	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DB)
 	database, err := sql.Open("postgres", url)
 
 	if err != nil {
 		return nil, err
 	}
 
-	database.SetMaxOpenConns(cfg.MaxConn)
+	database.SetMaxOpenConns(cfg.MaxConnections)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.Timeout)*time.Second)
 	defer cancel()

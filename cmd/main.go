@@ -11,13 +11,12 @@ import (
 )
 
 func main() {
-
 	cfg, err := config.NewConfig()
 	if err != nil {
 		slog.Error("error at getting config:", err.Error())
 	}
 
-	database, err := postgres.ConnectPostgres(cfg.PostgresCfg)
+	database, err := postgres.ConnectPostgres(cfg.Postgres)
 	if err != nil {
 		slog.Error("database connection failed:", err.Error())
 	}

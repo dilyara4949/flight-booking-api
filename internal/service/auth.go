@@ -19,8 +19,7 @@ type Claims struct {
 }
 
 type AuthService struct {
-	repo           repository.IUserRepository
-	contextTimeout time.Duration
+	repo repository.IUserRepository
 }
 type IAuthService interface {
 	CreateUser(ctx context.Context, user *domain.User, password string) error
@@ -29,17 +28,13 @@ type IAuthService interface {
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-func NewAuthService(userRepo repository.IUserRepository, contextTimeout time.Duration) IAuthService {
+func NewAuthService(userRepo repository.IUserRepository) IAuthService {
 	return &AuthService{
-		repo:           userRepo,
-		contextTimeout: contextTimeout,
+		repo: userRepo,
 	}
 }
 
 func (service *AuthService) CreateUser(ctx context.Context, user *domain.User, password string) error {
-	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
-	defer cancel()
-
 	user.ID = uuid.New()
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
@@ -53,16 +48,10 @@ func (service *AuthService) CreateUser(ctx context.Context, user *domain.User, p
 	return service.repo.Create(ctx, user, string(encryptedPassword))
 }
 func (service *AuthService) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
-	defer cancel()
-
 	return service.repo.Get(ctx, id)
 }
 
 func (service *AuthService) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
-	defer cancel()
-
 	return service.repo.Delete(ctx, id)
 }
 
