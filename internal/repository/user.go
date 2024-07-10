@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 )
@@ -15,9 +16,9 @@ type userRepository struct {
 
 type UserRepository interface {
 	Create(ctx context.Context, user *domain.User, password string) error
-	Get(ctx context.Context, id string) (*domain.User, error)
+	Get(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	Update(ctx context.Context, user domain.User) error
-	Delete(ctx context.Context, id string) error
+	Delete(ctx context.Context, id uuid.UUID) error
 	GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error)
 }
 
@@ -45,7 +46,7 @@ func (repo *userRepository) Create(ctx context.Context, user *domain.User, passw
 	return nil
 }
 
-func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, error) {
+func (repo *userRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	row := repo.db.QueryRowContext(ctx, getUser, id)
 
 	user := domain.User{}
@@ -73,7 +74,7 @@ func (repo *userRepository) Update(ctx context.Context, user domain.User) error 
 	return nil
 }
 
-func (repo *userRepository) Delete(ctx context.Context, id string) error {
+func (repo *userRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	res, err := repo.db.ExecContext(ctx, deleteUsers, id)
 	if err != nil {
 		return fmt.Errorf("delete user error: %v", err)

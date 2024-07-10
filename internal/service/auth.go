@@ -14,7 +14,7 @@ import (
 )
 
 type Claims struct {
-	UserID string `json:"user_id"`
+	UserID uuid.UUID `json:"user_id"`
 	jwt.RegisteredClaims
 }
 
@@ -24,8 +24,8 @@ type authService struct {
 }
 type AuthService interface {
 	CreateUser(ctx context.Context, user *domain.User, password string) error
-	GetUser(ctx context.Context, id string) (*domain.User, error)
-	DeleteUser(ctx context.Context, id string) error
+	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	DeleteUser(ctx context.Context, id uuid.UUID) error
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
@@ -40,7 +40,7 @@ func (service *authService) CreateUser(ctx context.Context, user *domain.User, p
 	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
 	defer cancel()
 
-	user.ID = uuid.New().String()
+	user.ID = uuid.New()
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(password),
@@ -52,14 +52,14 @@ func (service *authService) CreateUser(ctx context.Context, user *domain.User, p
 
 	return service.repo.Create(ctx, user, string(encryptedPassword))
 }
-func (service *authService) GetUser(ctx context.Context, id string) (*domain.User, error) {
+func (service *authService) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
 	defer cancel()
 
 	return service.repo.Get(ctx, id)
 }
 
-func (service *authService) DeleteUser(ctx context.Context, id string) error {
+func (service *authService) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	ctx, cancel := context.WithTimeout(ctx, service.contextTimeout)
 	defer cancel()
 
