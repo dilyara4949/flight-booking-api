@@ -13,15 +13,15 @@ var (
 	errMissingJWTTokenSecret         = errors.New("JWT_TOKEN_SECRET is empty")
 	errMissingPostgresHost           = errors.New("POSTGRES_HOST is empty")
 	errMissingPostgresPort           = errors.New("POSTGRES_PORT is empty")
-	errMissingPostgresName           = errors.New("POSTGRES_NAME is empty")
+	errMissingPostgresName           = errors.New("POSTGRES_DB is empty")
 	errMissingPostgresUser           = errors.New("POSTGRES_USER is empty")
 	errMissingPostgresPassword       = errors.New("POSTGRES_PASSWORD is empty")
 	errMissingPostgresTimeout        = errors.New("POSTGRES_TIMEOUT is empty")
 	errMissingPostgresMaxConn        = errors.New("POSTGRES_MAX_CONNECTIONS is empty")
 	errPostgresMaxConnType           = errors.New("POSTGRES_MAX_CONNECTIONS must be an integer")
 	errPostgresTimeoutType           = errors.New("POSTGRES_TIMEOUT must be an integer")
-	errMissingPostgresRequestTimeout = errors.New("POSTGRES_REQUEST_TIMEOUT is empty")
-	errPostgresRequestTimeoutType    = errors.New("POSTGRES_REQUEST_TIMEOUT must be an integer")
+	errMissingPostgresContextTimeout = errors.New("POSTGRES_CONTEXT_TIMEOUT is empty")
+	errPostgresContextTimeoutType    = errors.New("POSTGRES_CONTEXT_TIMEOUT must be an integer")
 	errAccessTokenExpire             = errors.New("ACCESS_TOKEN_EXPIRE is empty")
 	errAccessTokenExpireType         = errors.New("ACCESS_TOKEN_EXPIRE must be an integer")
 )
@@ -37,7 +37,7 @@ const (
 	postgresPasswordEnv       = "POSTGRES_PASSWORD"
 	postgresNameEnv           = "POSTGRES_DB"
 	postgresTimeoutEnv        = "POSTGRES_TIMEOUT"
-	postgresRequestTimeoutEnv = "POSTGRES_REQUEST_TIMEOUT"
+	postgresContextTimeoutEnv = "POSTGRES_CONTEXT_TIMEOUT"
 	postgresMaxConnEnv        = "POSTGRES_MAX_CONNECTIONS"
 )
 
@@ -55,7 +55,7 @@ type PostgresCfg struct {
 	User           string
 	Password       string
 	Name           string
-	RequestTimeout time.Duration
+	ContextTimeout time.Duration
 	Timeout        int
 	MaxConn        int
 }
@@ -75,7 +75,7 @@ func NewConfig() (Config, error) {
 
 	accessTokenExpire, err := strconv.Atoi(accessTokenExpireStr)
 	if err != nil {
-		errs = append(errs, errAccessTokenExpire)
+		errs = append(errs, errAccessTokenExpireType)
 	}
 
 	restPort := os.Getenv(restPortEnv)
@@ -123,14 +123,14 @@ func NewConfig() (Config, error) {
 		errs = append(errs, errPostgresTimeoutType)
 	}
 
-	postgresRequestTimeoutStr := os.Getenv(postgresRequestTimeoutEnv)
+	postgresContextTimeoutStr := os.Getenv(postgresContextTimeoutEnv)
 	if postgresTimeoutStr == "" {
-		errs = append(errs, errMissingPostgresRequestTimeout)
+		errs = append(errs, errMissingPostgresContextTimeout)
 	}
 
-	postgresRequstTimeout, err := strconv.Atoi(postgresRequestTimeoutStr)
+	postgresRequstTimeout, err := strconv.Atoi(postgresContextTimeoutStr)
 	if err != nil {
-		errs = append(errs, errPostgresRequestTimeoutType)
+		errs = append(errs, errPostgresContextTimeoutType)
 	}
 
 	postgresMaxConnStr := os.Getenv(postgresMaxConnEnv)
@@ -142,6 +142,11 @@ func NewConfig() (Config, error) {
 	if err != nil {
 		errs = append(errs, errPostgresMaxConnType)
 	}
+
+	if err := errors.Join(errs...); err != nil {
+		return Config{}, err
+	}
+
 	return Config{
 		JWTTokenSecret:    jwtTokenSecret,
 		RestPort:          restPort,
@@ -153,7 +158,7 @@ func NewConfig() (Config, error) {
 			postgresUser,
 			postgresPassword,
 			postgresName,
-			time.Hour * time.Duration(postgresRequstTimeout),
+			time.Second * time.Duration(postgresRequstTimeout),
 			postgresTimeout,
 			postgresMaxconn,
 		},

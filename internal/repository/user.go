@@ -26,7 +26,7 @@ var (
 )
 
 const (
-	createUser  = "insert into users (id, email, password, phone, role) values ($1, $2, $3, $4, 'user') returnig created_at, updated_at"
+	createUser  = "insert into users (id, email, password, phone, role) values ($1, $2, $3, $4, 'user') returning created_at, updated_at"
 	getUser     = "select id, email, phone, created_at, updated_at from users where id = $1;"
 	updateUser  = "update users set email = $2, phone = $3, updated_at = CURRENT_TIMESTAMP where id = $1;"
 	deleteUsers = "delete from users where id = $1"
@@ -34,8 +34,10 @@ const (
 )
 
 func (repo *userRepository) Create(ctx context.Context, user *domain.User, password string) error {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
 	defer cancel()
+
+	fmt.Println(repo.contextTimeout * time.Second)
 
 	user.ID = uuid.New().String()
 
@@ -46,7 +48,7 @@ func (repo *userRepository) Create(ctx context.Context, user *domain.User, passw
 }
 
 func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
 	defer cancel()
 
 	row := repo.db.QueryRowContext(ctx, getUser, id)
@@ -65,7 +67,7 @@ func (repo *userRepository) Get(ctx context.Context, id string) (*domain.User, e
 }
 
 func (repo *userRepository) Update(ctx context.Context, user domain.User) error {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
 	defer cancel()
 
 	res, err := repo.db.ExecContext(ctx, updateUser, user.ID, user.Email, user.Phone)
@@ -80,7 +82,7 @@ func (repo *userRepository) Update(ctx context.Context, user domain.User) error 
 }
 
 func (repo *userRepository) Delete(ctx context.Context, id string) error {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
 	defer cancel()
 
 	res, err := repo.db.ExecContext(ctx, deleteUsers, id)
@@ -95,7 +97,7 @@ func (repo *userRepository) Delete(ctx context.Context, id string) error {
 }
 
 func (repo *userRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
-	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, repo.contextTimeout)
 	defer cancel()
 
 	offset := (page - 1) * pageSize

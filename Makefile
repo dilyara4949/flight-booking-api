@@ -1,5 +1,8 @@
 DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
 
+run:
+	go run cmd/main.go
+
 create-migration:
 	@read -p "migration name: " name; \
 	migrate create -ext sql -dir internal/database/postgres/migration -seq $$name

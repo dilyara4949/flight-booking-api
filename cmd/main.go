@@ -15,6 +15,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("error at getting config: %v", err)
 	}
+	fmt.Println(cfg.ContextTimeout)
 
 	db, err := postgres.ConnectPostgres(cfg.PostgresCfg)
 	if err != nil {

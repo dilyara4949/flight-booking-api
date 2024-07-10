@@ -11,7 +11,7 @@ import (
 )
 
 func NewSignupRoute(cfg config.Config, db *sql.DB, group *gin.RouterGroup) {
-	repo := repository.NewUserRepository(db, cfg.PostgresCfg.RequestTimeout)
+	repo := repository.NewUserRepository(db, cfg.PostgresCfg.ContextTimeout)
 	authService := service.NewAuthService(repo)
 	authController := controller.NewAuthController(authService, cfg)
 
