@@ -16,7 +16,7 @@ func main() {
 		slog.Error("error at getting config:", err.Error())
 	}
 
-	database, err := postgres.ConnectPostgres(cfg.Postgres)
+	database, err := postgres.Connect(cfg.Postgres)
 	if err != nil {
 		slog.Error("database connection failed:", err.Error())
 	}

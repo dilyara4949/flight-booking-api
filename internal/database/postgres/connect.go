@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func ConnectPostgres(cfg config.Postgres) (*sql.DB, error) {
+func Connect(cfg config.Postgres) (*sql.DB, error) {
 	url := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable", cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DB)
 	database, err := sql.Open("postgres", url)
 

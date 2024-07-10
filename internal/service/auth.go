@@ -18,23 +18,23 @@ type Claims struct {
 	jwt.RegisteredClaims
 }
 
-type AuthService struct {
-	repo repository.IUserRepository
+type Auth struct {
+	repo repository.UserRepository
 }
-type IAuthService interface {
+type AuthService interface {
 	CreateUser(ctx context.Context, user *domain.User, password string) error
 	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-func NewAuthService(userRepo repository.IUserRepository) IAuthService {
-	return &AuthService{
+func NewAuthService(userRepo repository.UserRepository) AuthService {
+	return &Auth{
 		repo: userRepo,
 	}
 }
 
-func (service *AuthService) CreateUser(ctx context.Context, user *domain.User, password string) error {
+func (service *Auth) CreateUser(ctx context.Context, user *domain.User, password string) error {
 	user.ID = uuid.New()
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
@@ -47,15 +47,15 @@ func (service *AuthService) CreateUser(ctx context.Context, user *domain.User, p
 
 	return service.repo.Create(ctx, user, string(encryptedPassword))
 }
-func (service *AuthService) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (service *Auth) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	return service.repo.Get(ctx, id)
 }
 
-func (service *AuthService) DeleteUser(ctx context.Context, id uuid.UUID) error {
+func (service *Auth) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return service.repo.Delete(ctx, id)
 }
 
-func (service *AuthService) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (accessToken string, err error) {
+func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (accessToken string, err error) {
 	expirationTime := time.Now().Add(time.Duration(expiry) * time.Hour)
 	claims := &Claims{
 		UserID: user.ID,

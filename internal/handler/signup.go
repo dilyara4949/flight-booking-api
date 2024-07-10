@@ -1,4 +1,4 @@
-package controller
+package handler
 
 import (
 	"github.com/dilyara4949/flight-booking-api/internal/service"
@@ -10,9 +10,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type AuthController struct {
-	Service service.IAuthService
+type AuthHandler struct {
+	Service service.AuthService
 	Config  config.Config
+}
+
+type Signup struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type ErrorResponse struct {
@@ -24,12 +29,12 @@ type SignupResponse struct {
 	User        domain.User
 }
 
-func NewAuthController(service service.IAuthService, cfg config.Config) *AuthController {
-	return &AuthController{Service: service, Config: cfg}
+func NewAuthHandler(service service.AuthService, cfg config.Config) *AuthHandler {
+	return &AuthHandler{Service: service, Config: cfg}
 }
 
-func (controller *AuthController) Signup(c *gin.Context) {
-	var request domain.Signup
+func (controller *AuthHandler) Signup(c *gin.Context) {
+	var request Signup
 
 	err := c.ShouldBind(&request)
 	if err != nil {

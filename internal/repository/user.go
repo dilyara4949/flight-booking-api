@@ -14,16 +14,8 @@ type UserRepository struct {
 	db *sql.DB
 }
 
-type IUserRepository interface {
-	Create(ctx context.Context, user *domain.User, password string) error
-	Get(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	Update(ctx context.Context, user domain.User) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error)
-}
-
-func NewUserRepository(db *sql.DB) IUserRepository {
-	return &UserRepository{db: db}
+func NewUserRepository(db *sql.DB) UserRepository {
+	return UserRepository{db: db}
 }
 
 var (
