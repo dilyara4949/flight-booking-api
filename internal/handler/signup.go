@@ -17,16 +17,16 @@ type signup struct {
 	Password string `json:"password"`
 }
 
-type ErrorResponse struct {
+type errorResponse struct {
 	Error string `json:"error"`
 }
 
 type signupResponse struct {
 	AccessToken string
-	User        UserResponse
+	User        userResponse
 }
 
-type UserResponse struct {
+type userResponse struct {
 	ID        uuid.UUID `json:"id"`
 	Email     string    `json:"email"`
 	Phone     string    `json:"phone"`
@@ -40,12 +40,12 @@ func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerF
 
 		err := c.ShouldBind(&request)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "incorrect request body"})
+			c.JSON(http.StatusBadRequest, errorResponse{Error: "incorrect request body"})
 			return
 		}
 
 		if request.Password == "" || request.Email == "" {
-			c.JSON(http.StatusBadRequest, ErrorResponse{Error: "fields cannot be empty"})
+			c.JSON(http.StatusBadRequest, errorResponse{Error: "fields cannot be empty"})
 			return
 		}
 
@@ -53,7 +53,7 @@ func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerF
 
 		err = service.CreateUser(c, &user, request.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: err.Error()})
+			c.JSON(http.StatusInternalServerError, errorResponse{Error: err.Error()})
 			return
 		}
 
@@ -61,7 +61,7 @@ func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerF
 		if err != nil {
 			slog.Error("signup: error at creating access token,", err)
 
-			c.JSON(http.StatusInternalServerError, ErrorResponse{Error: "create access token error"})
+			c.JSON(http.StatusInternalServerError, errorResponse{Error: "create access token error"})
 			return
 		}
 
@@ -73,8 +73,8 @@ func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerF
 	}
 }
 
-func domainUserToResponse(user domain.User) UserResponse {
-	return UserResponse{
+func domainUserToResponse(user domain.User) userResponse {
+	return userResponse{
 		ID:        user.ID,
 		Email:     user.Email,
 		Phone:     user.Phone,
