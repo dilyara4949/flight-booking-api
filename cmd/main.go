@@ -31,12 +31,6 @@ func main() {
 		return
 	}
 
-	err = postgres.Migrate(database)
-	if err != nil {
-		slog.Error("migration failed:", err)
-		return
-	}
-
 	repo := repository.NewUserRepository(database)
 	authService := service.NewAuthService(repo)
 

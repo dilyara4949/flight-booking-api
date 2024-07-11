@@ -6,13 +6,13 @@ import (
 )
 
 type Ticket struct {
-	ID        uuid.UUID `json:"id" gorm:"type:uuid;default:uuid_generate_v4()"`
-	FlightID  uuid.UUID `json:"-" gorm:"type:uuid"`
-	Flight    Flight    `json:"flight" gorm:"foreignKey:FlightID;references:ID"`
-	UserID    uuid.UUID `json:"-" gorm:"type:uuid"`
-	User      User      `json:"user" gorm:"foreignKey:UserID;references:ID"`
-	RankID    uuid.UUID `json:"-" gorm:"type:uuid"`
-	Rank      Rank      `json:"rank" gorm:"foreignKey:RankID;references:ID"`
+	ID       uuid.UUID `json:"id" gorm:"type:uuid;default:uuid_generate_v4()"`
+	FlightID uuid.UUID `json:"flight_id" gorm:"type:uuid"`
+	//Flight    Flight    `json:"flight" gorm:"foreignKey:FlightID;references:ID"`
+	UserID uuid.UUID `json:"user_id" gorm:"type:uuid"`
+	//User      User      `json:"user" gorm:"foreignKey:UserID;references:ID"`
+	Rank string `json:"rank"`
+	//Rank      Rank      `json:"rank" gorm:"foreignKey:RankID;references:ID"`
 	Price     int       `json:"price"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`

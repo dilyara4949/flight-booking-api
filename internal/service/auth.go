@@ -31,8 +31,8 @@ func NewAuthService(userRepo repository.UserRepository) *Auth {
 
 func (service *Auth) CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error) {
 	user := domain.User{
-		Email:  signup.Email,
-		RoleID: signup.RoleID,
+		Email: signup.Email,
+		Role:  signup.Role,
 	}
 
 	user.ID = uuid.New()

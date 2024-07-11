@@ -6,12 +6,12 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id" gorm:"type:uuid;default:uuid_generate_v4()"`
-	Email     string    `json:"email" gorm:"unique;not null"`
-	Phone     string    `json:"phone"`
-	Password  string    `json:"password" gorm:"not null"`
-	RoleID    uuid.UUID `json:"-" gorm:"type:uuid"`
-	Role      Role      `json:"role" gorm:"foreignKey:RoleID;references:ID"`
+	ID       uuid.UUID `json:"id" gorm:"type:uuid;default:uuid_generate_v4()"`
+	Email    string    `json:"email" gorm:"unique;not null"`
+	Phone    string    `json:"phone"`
+	Password string    `json:"password" gorm:"not null"`
+	Role     string    `json:"role"`
+	//Role      Role      `json:"role" gorm:"foreignKey:RoleID;references:ID"`
 	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
 	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
 }
