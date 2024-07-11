@@ -34,11 +34,11 @@ func main() {
 	repo := repository.NewUserRepository(database)
 	authService := service.NewAuthService(repo)
 
-	ginRouter := handler.NewAPI(cfg, authService)
+	apiHandler := handler.NewAPI(cfg, authService)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", cfg.Address, cfg.RestPort),
-		Handler: ginRouter,
+		Handler: apiHandler,
 	}
 
 	quit := make(chan os.Signal, 1)

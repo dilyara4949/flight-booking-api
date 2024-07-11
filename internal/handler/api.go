@@ -8,9 +8,17 @@ import (
 func NewAPI(cfg config.Config, authService AuthService) *gin.Engine {
 
 	router := gin.Default()
-	publicRouter := router.Group("/api")
 
-	publicRouter.POST("signup", SignupHandler(authService, cfg))
+	api := router.Group("/api")
+	{
+		v1 := api.Group("/v1")
+		{
+			auth := v1.Group("/auth")
+			{
+				auth.POST("/signup", SignupHandler(authService, cfg))
+			}
+		}
+	}
 
 	return router
 }
