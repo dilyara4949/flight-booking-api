@@ -22,10 +22,7 @@ var (
 	ErrUserNotFound = errors.New("user not found")
 )
 
-func (repo *UserRepository) Create(ctx context.Context, user *domain.User, password string) error {
-	user.ID = uuid.New()
-	user.Password = password
-
+func (repo *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	var role domain.Role
 	if err := repo.db.WithContext(ctx).Where("name = ?", "user").First(&role).Error; err != nil {
 		return fmt.Errorf("failed to find role 'user': %v", err)

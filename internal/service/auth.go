@@ -45,8 +45,11 @@ func (service *Auth) CreateUser(ctx context.Context, user *domain.User, password
 		return fmt.Errorf("generate password error: %v", err)
 	}
 
-	return service.repo.Create(ctx, user, string(encryptedPassword))
+	user.Password = string(encryptedPassword)
+
+	return service.repo.Create(ctx, user)
 }
+
 func (service *Auth) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
 	return service.repo.Get(ctx, id)
 }

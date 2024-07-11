@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
-	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,43 +30,10 @@ func Connect(ctx context.Context, cfg config.Postgres) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = db.AutoMigrate(&domain.Role{}, &domain.User{}, &domain.Rank{}, &domain.Flight{}, &domain.Ticket{})
+	err = Migrate(db)
 	if err != nil {
-		return nil, fmt.Errorf("auto migration failed: %w", err)
-	}
-
-	err = insertInitialData(db)
-	if err != nil {
-		return nil, fmt.Errorf("inserting initial data failed: %w", err)
+		return nil, fmt.Errorf("	migration failed: %w", err)
 	}
 
 	return db, nil
-}
-
-func insertInitialData(db *gorm.DB) error {
-	var count int64
-	db.Model(&domain.Role{}).Count(&count)
-	if count == 0 {
-		roles := []domain.Role{
-			{ID: uuid.New(), Name: "user"},
-			{ID: uuid.New(), Name: "admin"},
-		}
-		if err := db.Create(&roles).Error; err != nil {
-			return err
-		}
-	}
-
-	db.Model(&domain.Rank{}).Count(&count)
-	if count == 0 {
-		ranks := []domain.Rank{
-			{ID: uuid.New(), Name: "economy"},
-			{ID: uuid.New(), Name: "business"},
-			{ID: uuid.New(), Name: "deluxe"},
-		}
-		if err := db.Create(&ranks).Error; err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
