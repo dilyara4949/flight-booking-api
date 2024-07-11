@@ -7,11 +7,12 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/route"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/sync/errgroup"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 )
 
 func runServer() error {
@@ -44,33 +45,26 @@ func runServer() error {
 		Handler: ginRouter,
 	}
 
-	g, gCtx := errgroup.WithContext(ctx)
-	g.Go(func() error {
-		return httpServer.ListenAndServe()
-	})
-	g.Go(func() error {
-		<-gCtx.Done()
-		return httpServer.Shutdown(context.Background())
-	})
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
-	if err := g.Wait(); err != nil {
-		return fmt.Errorf("exit reason: %w", err)
+	go func() {
+		<-quit
+		slog.Info("Shutting down server...")
+		if err := httpServer.Shutdown(context.Background()); err != nil {
+			slog.Error("Server Shutdown Failed:", err.Error())
+		}
+	}()
+
+	if err = httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		return fmt.Errorf("listen: %w", err)
 	}
 
 	return nil
 }
 
 func main() {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-
-	go func() {
-		<-quit
-		log.Println("Shutting down server...")
-		os.Exit(0)
-	}()
-
 	if err := runServer(); err != nil {
-		log.Fatalf("server failed: %v", err)
+		slog.Error("server failed:", err.Error())
 	}
 }

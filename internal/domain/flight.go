@@ -11,7 +11,7 @@ type Flight struct {
 	EndDate      time.Time `json:"end_date"`
 	Departure    string    `json:"departure"`
 	Destination  string    `json:"destination"`
-	RankID       uuid.UUID `json:"rank_id" gorm:"type:uuid"`
+	RankID       uuid.UUID `json:"-" gorm:"type:uuid"`
 	Rank         Rank      `json:"rank" gorm:"foreignKey:RankID;references:ID"`
 	Price        int64     `json:"price"`
 	TotalTickets int       `json:"total_tickets"`
