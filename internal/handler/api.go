@@ -7,10 +7,10 @@ import (
 
 func NewAPI(cfg config.Config, authService AuthService) *gin.Engine {
 
-	ginRouter := gin.Default()
-	publicRouter := ginRouter.Group("/api")
+	router := gin.Default()
+	publicRouter := router.Group("/api")
 
 	publicRouter.POST("signup", SignupHandler(authService, cfg))
 
-	return ginRouter
+	return router
 }
