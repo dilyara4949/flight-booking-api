@@ -1,7 +1,7 @@
 package handler
 
 import (
-	service2 "github.com/dilyara4949/flight-booking-api/internal/service"
+	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
@@ -34,7 +34,7 @@ type userResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerFunc {
+func SignupHandler(authService service.AuthService, cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var request signup
 
@@ -51,13 +51,13 @@ func SignupHandler(service service2.AuthService, cfg config.Config) gin.HandlerF
 
 		user := domain.User{Email: request.Email}
 
-		err = service.CreateUser(c, &user, request.Password)
+		err = authService.CreateUser(c, &user, request.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, errorResponse{Error: err.Error()})
 			return
 		}
 
-		token, err := service.CreateAccessToken(c, user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
+		token, err := authService.CreateAccessToken(c, user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
 		if err != nil {
 			slog.Error("signup: error at creating access token,", err)
 

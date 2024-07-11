@@ -3,17 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
-
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/route"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
+	"log"
+	"net/http"
+	"os"
+	"os/signal"
 )
 
 func runServer() error {
@@ -22,8 +20,7 @@ func runServer() error {
 		return fmt.Errorf("error getting config: %w", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(cfg.Timeout)*time.Second)
-	defer cancel()
+	ctx := context.Background()
 
 	database, err := postgres.Connect(ctx, cfg.Postgres)
 	if err != nil {

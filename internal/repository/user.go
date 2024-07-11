@@ -23,16 +23,14 @@ var (
 )
 
 func (repo *UserRepository) Create(ctx context.Context, user *domain.User) error {
-	var role domain.Role
-	if err := repo.db.WithContext(ctx).Where("name = ?", "user").First(&role).Error; err != nil {
-		return fmt.Errorf("failed to find role 'user': %v", err)
-	}
-	user.Role = role
-	user.RoleID = role.ID
-
-	if err := repo.db.WithContext(ctx).Create(&user).Error; err != nil {
+	createUser := `
+        INSERT INTO users (id, email, password, phone, role_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, (SELECT id FROM roles WHERE name = ?), ?, ?)
+	`
+	if err := repo.db.WithContext(ctx).Exec(createUser, user.ID, user.Email, user.Password, user.Phone, "user", user.CreatedAt, user.UpdatedAt).Error; err != nil {
 		return fmt.Errorf("create user error: %v", err)
 	}
+
 	return nil
 }
 
