@@ -8,6 +8,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 )
 
 type UserRepository struct {
@@ -17,10 +18,6 @@ type UserRepository struct {
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return UserRepository{db: db}
 }
-
-var (
-	ErrUserNotFound = errors.New("user not found")
-)
 
 func (repo *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	if err := repo.db.WithContext(ctx).Create(&user).Error; err != nil {
@@ -35,7 +32,7 @@ func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User
 
 	if err := repo.db.WithContext(ctx).First(&user, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrUserNotFound
+			return nil, errs.UserNotFound
 		}
 		return nil, fmt.Errorf("get user error: %v", err)
 	}
