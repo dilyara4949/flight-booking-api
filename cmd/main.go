@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
-	"github.com/dilyara4949/flight-booking-api/internal/route"
-	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/dilyara4949/flight-booking-api/internal/handler"
+	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"log/slog"
 	"net/http"
 	"os"
@@ -15,30 +15,26 @@ import (
 	"syscall"
 )
 
-func runServer() error {
+func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
-		return fmt.Errorf("error getting config: %w", err)
+		slog.Error("error getting config: %w", err)
+		return
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	database, err := postgres.Connect(ctx, cfg.Postgres)
 	if err != nil {
-		return fmt.Errorf("database connection failed: %w", err)
+		slog.Error("database connection failed: %w", err)
+		return
 	}
 
-	defer func() {
-		sqlDB, err := database.DB()
-		if err != nil {
-			log.Printf("Error getting sql.DB from gorm.DB: %v", err)
-			return
-		}
-		sqlDB.Close()
-	}()
+	repo := repository.NewUserRepository(database)
+	authService := service.NewAuthService(repo)
 
-	ginRouter := gin.Default()
-	route.NewAPI(cfg, database, ginRouter)
+	ginRouter := handler.NewAPI(cfg, authService)
 
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf("%s:%s", cfg.Address, cfg.RestPort),
@@ -51,20 +47,13 @@ func runServer() error {
 	go func() {
 		<-quit
 		slog.Info("Shutting down server...")
-		if err := httpServer.Shutdown(context.Background()); err != nil {
+		if err := httpServer.Shutdown(ctx); err != nil {
 			slog.Error("Server Shutdown Failed:", err.Error())
 		}
 	}()
 
 	if err = httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		return fmt.Errorf("listen: %w", err)
-	}
-
-	return nil
-}
-
-func main() {
-	if err := runServer(); err != nil {
-		slog.Error("server failed:", err.Error())
+		slog.Error("listen: %w", err)
+		return
 	}
 }

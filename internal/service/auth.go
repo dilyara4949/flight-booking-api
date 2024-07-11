@@ -21,14 +21,8 @@ type Claims struct {
 type Auth struct {
 	repo repository.UserRepository
 }
-type AuthService interface {
-	CreateUser(ctx context.Context, user *domain.User, password string) error
-	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	DeleteUser(ctx context.Context, id uuid.UUID) error
-	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
-}
 
-func NewAuthService(userRepo repository.UserRepository) AuthService {
+func NewAuthService(userRepo repository.UserRepository) *Auth {
 	return &Auth{
 		repo: userRepo,
 	}

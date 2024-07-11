@@ -1,59 +1,47 @@
 package handler
 
 import (
-	"github.com/dilyara4949/flight-booking-api/internal/service"
+	"context"
+	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
+	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
-	"time"
-
-	"github.com/dilyara4949/flight-booking-api/internal/config"
-	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/gin-gonic/gin"
 )
 
-type signup struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+type AuthService interface {
+	CreateUser(ctx context.Context, user *domain.User, password string) error
+	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	DeleteUser(ctx context.Context, id uuid.UUID) error
+	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-type errorResponse struct {
-	Error string `json:"error"`
-}
-
-type signupResponse struct {
-	AccessToken string
-	User        userResponse
-}
-
-type userResponse struct {
-	ID        uuid.UUID `json:"id"`
-	Email     string    `json:"email"`
-	Phone     string    `json:"phone"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-}
-
-func SignupHandler(authService service.AuthService, cfg config.Config) gin.HandlerFunc {
+func SignupHandler(authService AuthService, cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var request signup
+		var req request.Signup
 
-		err := c.ShouldBind(&request)
+		err := c.ShouldBind(&req)
 		if err != nil {
-			c.JSON(http.StatusBadRequest, errorResponse{Error: "incorrect request body"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "incorrect req body"})
 			return
 		}
 
-		if request.Password == "" || request.Email == "" {
-			c.JSON(http.StatusBadRequest, errorResponse{Error: "fields cannot be empty"})
+		if req.Password == "" || req.Email == "" {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
 			return
 		}
 
-		user := domain.User{Email: request.Email}
+		user := domain.User{
+			Email:  req.Email,
+			RoleID: req.RoleID,
+		}
 
-		err = authService.CreateUser(c, &user, request.Password)
+		err = authService.CreateUser(c, &user, req.Password)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, errorResponse{Error: err.Error()})
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 			return
 		}
 
@@ -61,20 +49,20 @@ func SignupHandler(authService service.AuthService, cfg config.Config) gin.Handl
 		if err != nil {
 			slog.Error("signup: error at creating access token,", err)
 
-			c.JSON(http.StatusInternalServerError, errorResponse{Error: "create access token error"})
+			c.JSON(http.StatusInternalServerError, response.Error{Error: "create access token error"})
 			return
 		}
 
-		response := signupResponse{
+		resp := response.Signup{
 			AccessToken: token,
 			User:        domainUserToResponse(user),
 		}
-		c.JSON(http.StatusOK, response)
+		c.JSON(http.StatusOK, resp)
 	}
 }
 
-func domainUserToResponse(user domain.User) userResponse {
-	return userResponse{
+func domainUserToResponse(user domain.User) response.User {
+	return response.User{
 		ID:        user.ID,
 		Email:     user.Email,
 		Phone:     user.Phone,
