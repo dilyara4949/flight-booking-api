@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -27,7 +27,13 @@ func main() {
 
 	database, err := postgres.Connect(ctx, cfg.Postgres)
 	if err != nil {
-		slog.Error("database connection failed: %w", err)
+		slog.Error("database connection failed:", err)
+		return
+	}
+
+	err = postgres.Migrate(database)
+	if err != nil {
+		slog.Error("migration failed:", err)
 		return
 	}
 
@@ -37,7 +43,7 @@ func main() {
 	apiHandler := handler.NewAPI(cfg, authService)
 
 	httpServer := &http.Server{
-		Addr:    fmt.Sprintf("%s:%s", cfg.Address, cfg.RestPort),
+		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
 		Handler: apiHandler,
 	}
 
@@ -47,13 +53,15 @@ func main() {
 	go func() {
 		<-quit
 		slog.Info("Shutting down server...")
-		if err := httpServer.Shutdown(ctx); err != nil {
+		cancel()
+
+		if err = httpServer.Shutdown(ctx); err != nil {
 			slog.Error("Server Shutdown Failed:", err.Error())
 		}
 	}()
 
 	if err = httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		slog.Error("listen: %w", err)
+		slog.Error("listen:", err)
 		return
 	}
 }

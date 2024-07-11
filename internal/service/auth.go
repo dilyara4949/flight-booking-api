@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"fmt"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
@@ -28,7 +29,12 @@ func NewAuthService(userRepo repository.UserRepository) *Auth {
 	}
 }
 
-func (service *Auth) CreateUser(ctx context.Context, user *domain.User, password string) error {
+func (service *Auth) CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error) {
+	user := domain.User{
+		Email:  signup.Email,
+		RoleID: signup.RoleID,
+	}
+
 	user.ID = uuid.New()
 
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
@@ -36,12 +42,13 @@ func (service *Auth) CreateUser(ctx context.Context, user *domain.User, password
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		return fmt.Errorf("generate password error: %v", err)
+		return domain.User{}, fmt.Errorf("generate password error: %v", err)
 	}
 
 	user.Password = string(encryptedPassword)
 
-	return service.repo.Create(ctx, user)
+	err = service.repo.Create(ctx, &user)
+	return user, err
 }
 
 func (service *Auth) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {

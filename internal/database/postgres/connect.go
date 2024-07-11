@@ -30,10 +30,5 @@ func Connect(ctx context.Context, cfg config.Postgres) (*gorm.DB, error) {
 		return nil, err
 	}
 
-	err = Migrate(db)
-	if err != nil {
-		return nil, fmt.Errorf("	migration failed: %w", err)
-	}
-
 	return db, nil
 }

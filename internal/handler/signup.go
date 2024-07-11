@@ -13,7 +13,7 @@ import (
 )
 
 type AuthService interface {
-	CreateUser(ctx context.Context, user *domain.User, password string) error
+	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
 	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
@@ -34,12 +34,7 @@ func SignupHandler(authService AuthService, cfg config.Config) gin.HandlerFunc {
 			return
 		}
 
-		user := domain.User{
-			Email:  req.Email,
-			RoleID: req.RoleID,
-		}
-
-		err = authService.CreateUser(c, &user, req.Password)
+		user, err := authService.CreateUser(c, req, req.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 			return
