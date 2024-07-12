@@ -7,19 +7,19 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
 )
 
 type AuthService interface {
-	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
-	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
-	DeleteUser(ctx context.Context, id uuid.UUID) error
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-func SignupHandler(authService AuthService, cfg config.Config) gin.HandlerFunc {
+type UserService interface {
+	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
+}
+
+func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req request.Signup
 
@@ -29,12 +29,12 @@ func SignupHandler(authService AuthService, cfg config.Config) gin.HandlerFunc {
 			return
 		}
 
-		if req.Password == "" || req.Email == "" {
+		if req.Password == "" || req.Email == "" || req.Role == "" {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
 			return
 		}
 
-		user, err := authService.CreateUser(c, req, req.Password)
+		user, err := userService.CreateUser(c, req, req.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 			return

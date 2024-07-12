@@ -2,11 +2,8 @@ package service
 
 import (
 	"context"
-	"fmt"
-	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/google/uuid"
-	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"time"
 
@@ -27,34 +24,6 @@ func NewAuthService(userRepo repository.UserRepository) *Auth {
 	return &Auth{
 		repo: userRepo,
 	}
-}
-
-func (service *Auth) CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error) {
-	user := domain.User{
-		Email: signup.Email,
-		Role:  signup.Role,
-	}
-
-	encryptedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(password),
-		bcrypt.DefaultCost,
-	)
-	if err != nil {
-		return domain.User{}, fmt.Errorf("generate password error: %v", err)
-	}
-
-	user.Password = string(encryptedPassword)
-
-	err = service.repo.Create(ctx, &user)
-	return user, err
-}
-
-func (service *Auth) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
-	return service.repo.Get(ctx, id)
-}
-
-func (service *Auth) DeleteUser(ctx context.Context, id uuid.UUID) error {
-	return service.repo.Delete(ctx, id)
 }
 
 func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (accessToken string, err error) {
@@ -78,4 +47,8 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 	}
 
 	return accessToken, nil
+}
+
+func (service *Auth) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	return service.repo.Delete(ctx, id)
 }
