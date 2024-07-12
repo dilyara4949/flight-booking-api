@@ -24,9 +24,9 @@ type Postgres struct {
 }
 
 func NewConfig() (Config, error) {
-	cfg := Config{}
+	var cfg Config
 	if err := envconfig.Init(&cfg); err != nil {
-		return Config{}, fmt.Errorf("err=%s\n", err)
+		return Config{}, fmt.Errorf("get configs: %w", err)
 	}
 
 	return cfg, nil

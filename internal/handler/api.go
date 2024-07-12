@@ -6,7 +6,6 @@ import (
 )
 
 func NewAPI(cfg config.Config, authService AuthService, userService UserService) *gin.Engine {
-
 	router := gin.Default()
 
 	api := router.Group("/api")

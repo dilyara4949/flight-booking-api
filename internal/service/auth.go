@@ -2,13 +2,12 @@ package service
 
 import (
 	"context"
+	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
 	"log/slog"
 	"time"
-
-	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 type Claims struct {
@@ -26,7 +25,7 @@ func NewAuthService(userRepo repository.UserRepository) *Auth {
 	}
 }
 
-func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (accessToken string, err error) {
+func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jwtSecret string, expiry int) (string, error) {
 	expirationTime := time.Now().Add(time.Duration(expiry) * time.Hour)
 	claims := &Claims{
 		UserID: user.ID,
@@ -37,7 +36,7 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	accessToken, err = token.SignedString([]byte(jwtSecret))
+	accessToken, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
 		err2 := service.DeleteUser(ctx, user.ID)
 		if err2 != nil {

@@ -26,17 +26,20 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 		err := c.ShouldBind(&req)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "incorrect req body"})
+
 			return
 		}
 
 		if req.Password == "" || req.Email == "" || req.Role == "" {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
+
 			return
 		}
 
 		user, err := userService.CreateUser(c, req, req.Password)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+
 			return
 		}
 
@@ -45,6 +48,7 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			slog.Error("signup: error at creating access token,", err)
 
 			c.JSON(http.StatusInternalServerError, response.Error{Error: "create access token error"})
+
 			return
 		}
 

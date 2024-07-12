@@ -6,13 +6,13 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id" gorm:"type:uuid;default:uuid_generate_v4()"`
-	Email     string    `json:"email" gorm:"unique;not null"`
-	Phone     string    `json:"phone"`
-	Password  string    `json:"password" gorm:"not null"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	ID        uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	Email     string    `gorm:"unique;not null"                      json:"email"`
+	Phone     string    `gorm:"-"                                    json:"phone"`
+	Password  string    `gorm:"not null"                             json:"password"`
+	Role      string    `gorm:"-"                                    json:"role"`
+	CreatedAt time.Time `gorm:"autoCreateTime"                       json:"created_at"`
+	UpdatedAt time.Time `gorm:"autoUpdateTime"                       json:"updated_at"`
 }
 
 func (User) TableName() string {

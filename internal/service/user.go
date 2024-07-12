@@ -26,16 +26,16 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 		bcrypt.DefaultCost,
 	)
 	if err != nil {
-		return domain.User{}, fmt.Errorf("generate password error: %v", err)
+		return domain.User{}, fmt.Errorf("generate password error: %w", err)
 	}
 
-	id, err := uuid.NewV7()
+	userid, err := uuid.NewV7()
 	if err != nil {
-		return domain.User{}, fmt.Errorf("generate uuid error: %v", err)
+		return domain.User{}, fmt.Errorf("generate uuid error: %w", err)
 	}
 
 	user := domain.User{
-		ID:       id,
+		ID:       userid,
 		Email:    signup.Email,
 		Role:     signup.Role,
 		Password: string(encryptedPassword),

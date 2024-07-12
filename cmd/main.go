@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
@@ -51,12 +52,12 @@ func main() {
 		cancel()
 
 		if err = httpServer.Shutdown(ctx); err != nil {
-			slog.Error("Server Shutdown Failed:", err.Error())
+			slog.Error("Server Shutdown Failed", "error", err)
 		}
 	}()
 
-	if err = httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-		slog.Error("listen:", err)
+	if err = httpServer.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		slog.Error("listen:", "error", err)
 		return
 	}
 }
