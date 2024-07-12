@@ -35,8 +35,6 @@ func (service *Auth) CreateUser(ctx context.Context, signup request.Signup, pass
 		Role:  signup.Role,
 	}
 
-	user.ID = uuid.New()
-
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
 		[]byte(password),
 		bcrypt.DefaultCost,
