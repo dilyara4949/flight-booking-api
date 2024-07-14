@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
@@ -65,4 +66,18 @@ func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 	}
 
 	return users, nil
+}
+
+func (repo *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	var user domain.User
+
+	if err := repo.db.WithContext(ctx).First(&user, "email = ?", email).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, errs.ErrUserNotFound
+		}
+
+		return nil, fmt.Errorf("get user by email error: %w", err)
+	}
+
+	return &user, nil
 }
