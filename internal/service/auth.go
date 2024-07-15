@@ -40,7 +40,7 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 	if err != nil {
 		err2 := service.DeleteUser(ctx, user.ID)
 		if err2 != nil {
-			slog.Error("delete user failed: %v", err2)
+			slog.Error("delete user failed:", "error", err2.Error())
 		}
 
 		return "", err
