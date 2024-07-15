@@ -19,7 +19,7 @@ import (
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
-		slog.Error("error getting config: %w", err)
+		slog.Error("error getting config:", err.Error())
 		return
 	}
 
@@ -28,7 +28,7 @@ func main() {
 
 	database, err := postgres.Connect(ctx, cfg.Postgres)
 	if err != nil {
-		slog.Error("database connection failed:", err)
+		slog.Error("database connection failed:", err.Error())
 		return
 	}
 

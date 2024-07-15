@@ -41,7 +41,7 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 
 		token, err := authService.CreateAccessToken(c, user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
 		if err != nil {
-			slog.Error("signup: error at creating access token,", err)
+			slog.Error("signup: error at creating access token", err.Error())
 
 			c.JSON(http.StatusInternalServerError, response.Error{Error: "create access token error"})
 

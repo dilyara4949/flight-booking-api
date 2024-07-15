@@ -4,6 +4,9 @@ DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
 lint:
 	  $(GOLANGCILINT) run -v --enable-all
 
+lint-local:
+	golangci-lint run
+
 run:
 	go run cmd/main.go
 
