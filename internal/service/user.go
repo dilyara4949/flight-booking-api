@@ -2,10 +2,12 @@ package service
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -51,4 +53,24 @@ func (service *User) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, e
 
 func (service *User) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return service.repo.Delete(ctx, id)
+}
+
+func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
+	user := domain.User{
+		ID:    userID,
+		Email: req.Email,
+		Phone: req.Phone,
+	}
+
+	_, err := service.GetUser(ctx, userID)
+	if err != nil {
+		return domain.User{}, errs.ErrUserNotFound
+	}
+
+	user, err = service.repo.Update(ctx, user)
+	if err != nil {
+		return domain.User{}, errors.New("email already exists")
+	}
+
+	return user, nil
 }

@@ -15,10 +15,6 @@ type AuthService interface {
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-type UserService interface {
-	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
-}
-
 func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req request.Signup
@@ -57,15 +53,5 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			User:        domainUserToResponse(user),
 		}
 		c.JSON(http.StatusOK, resp)
-	}
-}
-
-func domainUserToResponse(user domain.User) response.User {
-	return response.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Phone:     user.Phone,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
 	}
 }

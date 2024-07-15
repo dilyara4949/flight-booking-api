@@ -8,6 +8,7 @@ import (
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type UserRepository struct {
@@ -40,12 +41,18 @@ func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User
 	return &user, nil
 }
 
-func (repo *UserRepository) Update(ctx context.Context, user domain.User) error {
-	if err := repo.db.WithContext(ctx).Save(&user).Error; err != nil {
-		return fmt.Errorf("update user error: %w", err)
+func (repo *UserRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {
+	if err := repo.db.WithContext(ctx).Model(&user).
+		Where("id = ?", user.ID).
+		Updates(map[string]interface{}{
+			"email":      user.Email,
+			"phone":      user.Phone,
+			"updated_at": time.Now(),
+		}).Error; err != nil {
+		return user, fmt.Errorf("update user error: %w", err)
 	}
 
-	return nil
+	return user, nil
 }
 
 func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {

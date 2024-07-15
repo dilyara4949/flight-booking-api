@@ -10,7 +10,7 @@ CREATE TABLE users (
                        email VARCHAR UNIQUE NOT NULL,
                        password VARCHAR NOT NULL ,
                        phone VARCHAR,
-                       role VARCHAR,
+                       role VARCHAR NOT NULL ,
                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                        FOREIGN KEY (role) REFERENCES roles(name)
