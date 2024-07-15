@@ -60,15 +60,15 @@ func (service *User) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return service.repo.Delete(ctx, id)
 }
 
-func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (*domain.User, error) {
+func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error) {
 	user, err := service.repo.GetByEmail(ctx, signin.Email)
 	if err != nil {
-		return nil, errors.ErrUserNotFound
+		return domain.User{}, errors.ErrUserNotFound
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signin.Password)) != nil {
-		return nil, errors.ErrIncorrectPassword
+		return domain.User{}, errors.ErrInvalidEmailPassword
 	}
 
-	return user, nil
+	return *user, nil
 }

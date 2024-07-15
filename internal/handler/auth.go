@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"errors"
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"log/slog"
 	"net/http"
@@ -20,7 +19,7 @@ type AuthService interface {
 
 type UserService interface {
 	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
-	ValidateUser(ctx context.Context, signin request.Signin) (*domain.User, error)
+	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
 }
 
 func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
@@ -83,19 +82,12 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 
 		user, err := userService.ValidateUser(c, req)
 		if err != nil {
-			switch {
-			case errors.Is(err, errs.ErrUserNotFound):
-				c.JSON(http.StatusNotFound, response.Error{Error: "user with given email not found"})
-			case errors.Is(err, errs.ErrIncorrectPassword):
-				c.JSON(http.StatusBadRequest, response.Error{Error: "password is not correct"})
-			default:
-				c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
-			}
+			c.JSON(http.StatusNotFound, response.Error{Error: errs.ErrInvalidEmailPassword.Error()})
 
 			return
 		}
 
-		token, err := authService.CreateAccessToken(c, *user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
+		token, err := authService.CreateAccessToken(c, user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
 		if err != nil {
 			slog.Error("signin: error at creating access token,", "error", err.Error())
 
@@ -106,7 +98,7 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 
 		resp := response.Signin{
 			AccessToken: token,
-			User:        domainUserToResponse(*user),
+			User:        domainUserToResponse(user),
 		}
 		c.JSON(http.StatusOK, resp)
 	}
