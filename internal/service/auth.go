@@ -42,6 +42,7 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 		if err2 != nil {
 			slog.Error("delete user failed: %v", err2)
 		}
+
 		return "", err
 	}
 

@@ -44,6 +44,7 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	}
 
 	err = service.repo.Create(ctx, &user)
+
 	return user, err
 }
 
@@ -69,5 +70,5 @@ func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (*
 		return nil, errors.ErrIncorrectPassword
 	}
 
-	return user, err
+	return user, nil
 }

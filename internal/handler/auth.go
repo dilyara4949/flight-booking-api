@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"errors"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"log/slog"
 	"net/http"
 
@@ -79,11 +81,34 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 			return
 		}
 
-		//user, err := userService.ValidateUser(c, req)
-		//if err != nil {
-		//	//c.JSON(http.)
-		//}
+		user, err := userService.ValidateUser(c, req)
+		if err != nil {
+			switch {
+			case errors.Is(err, errs.ErrUserNotFound):
+				c.JSON(http.StatusNotFound, response.Error{Error: "user with given email not found"})
+			case errors.Is(err, errs.ErrIncorrectPassword):
+				c.JSON(http.StatusBadRequest, response.Error{Error: "password is not correct"})
+			default:
+				c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			}
 
+			return
+		}
+
+		token, err := authService.CreateAccessToken(c, *user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
+		if err != nil {
+			slog.Error("signin: error at creating access token,", err)
+
+			c.JSON(http.StatusInternalServerError, response.Error{Error: "create access token error"})
+
+			return
+		}
+
+		resp := response.Signin{
+			AccessToken: token,
+			User:        domainUserToResponse(*user),
+		}
+		c.JSON(http.StatusOK, resp)
 	}
 }
 
