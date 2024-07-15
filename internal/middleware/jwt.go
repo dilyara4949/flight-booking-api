@@ -3,6 +3,7 @@ package middleware
 import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -39,15 +40,15 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			claimedUID, ok := claims["user_id"].(string)
 			if !ok {
-				c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "authorization: no user property in claims"})
+				slog.Error("authorization: no user property in claims", "error")
+				c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "invalid token"})
 				return
 			}
 
 			c.Set("user_id", claimedUID)
 
 			c.Next()
-		} else {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, response.Error{Error: "invalid token claims"})
 		}
+		c.AbortWithStatusJSON(http.StatusUnauthorized, response.Error{Error: "invalid token"})
 	}
 }
