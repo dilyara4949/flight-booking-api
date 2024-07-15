@@ -6,7 +6,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"log/slog"
 	"time"
 )
 
@@ -38,11 +37,6 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 
 	accessToken, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
-		err2 := service.DeleteUser(ctx, user.ID)
-		if err2 != nil {
-			slog.Error("delete user failed:", "error", err2.Error())
-		}
-
 		return "", err
 	}
 
