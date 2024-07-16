@@ -30,7 +30,7 @@ func (repo *FlightRepository) Get(ctx context.Context, id uuid.UUID) (*domain.Fl
 
 	if err := repo.db.WithContext(ctx).First(&flight, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errs.FlightNotFound
+			return nil, errs.ErrUserNotFound
 		}
 		return nil, fmt.Errorf("get flight error: %v", err)
 	}

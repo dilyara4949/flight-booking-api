@@ -6,17 +6,16 @@ import (
 )
 
 type Flight struct {
-	ID           uuid.UUID `json:"id" gorm:"type:uuid;default:uuid_generate_v4()"`
-	StartDate    time.Time `json:"start_date"`
-	EndDate      time.Time `json:"end_date"`
-	Departure    string    `json:"departure"`
-	Destination  string    `json:"destination"`
-	RankID       uuid.UUID `json:"-" gorm:"type:uuid"`
-	Rank         Rank      `json:"rank" gorm:"foreignKey:RankID;references:ID"`
-	Price        int64     `json:"price"`
-	TotalTickets int       `json:"total_tickets"`
-	CreatedAt    time.Time `json:"created_at" gorm:"autoCreateTime"`
-	UpdatedAt    time.Time `json:"updated_at" gorm:"autoUpdateTime"`
+	ID           uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4()" json:"id"`
+	StartDate    time.Time `gorm:"not null"                             json:"start_date"`
+	EndDate      time.Time `gorm:"not null"                             json:"end_date"`
+	Departure    string    `gorm:"not null"                             json:"departure"`
+	Destination  string    `gorm:"not null"                             json:"destination"`
+	Rank         string    `gorm:"type:uuid"                            json:"rank"`
+	Price        int64     `gorm:"not null"                             json:"price"`
+	TotalTickets int       `gorm:"not null"                             json:"total_tickets"`
+	CreatedAt    time.Time `gorm:"autoCreateTime"                       json:"created_at"`
+	UpdatedAt    time.Time `gorm:"autoUpdateTime"                       json:"updated_at"`
 }
 
 func (Flight) TableName() string {
