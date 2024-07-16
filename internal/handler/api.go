@@ -16,6 +16,7 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService)
 			{
 				auth.POST("/signup", SignupHandler(authService, userService, cfg))
 			}
+
 			users := v1.Group("/users")
 			{
 				users.DELETE("/:userId", DeleteUserHandler(userService))
