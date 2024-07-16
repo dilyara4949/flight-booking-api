@@ -8,6 +8,6 @@ type CreateFlight struct {
 	Departure    string    `json:"departure"`
 	Destination  string    `json:"destination"`
 	Rank         string    `json:"rank"`
-	Price        int       `json:"price"`
+	Price        int64     `json:"price"`
 	TotalTickets int       `json:"total_tickets"`
 }

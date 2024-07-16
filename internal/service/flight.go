@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/google/uuid"
 )
@@ -19,8 +20,19 @@ func (service *Flight) Get(ctx context.Context, id uuid.UUID) (*domain.Flight, e
 	return service.repo.Get(ctx, id)
 }
 
-func (service *Flight) Create(ctx context.Context, flight domain.Flight) (domain.Flight, error) {
-	return flight, service.repo.Create(ctx, flight)
+func (service *Flight) Create(ctx context.Context, req request.CreateFlight) (domain.Flight, error) {
+	flight := domain.Flight{
+		ID:           uuid.New(),
+		StartDate:    req.StartDate,
+		EndDate:      req.EndDate,
+		Departure:    req.Departure,
+		Destination:  req.Destination,
+		Rank:         req.Rank,
+		Price:        req.Price,
+		TotalTickets: req.TotalTickets,
+	}
+
+	return service.repo.Create(ctx, flight)
 }
 
 func (service *Flight) Update(ctx context.Context, flight domain.Flight) error {
