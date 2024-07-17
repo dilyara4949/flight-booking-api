@@ -12,7 +12,7 @@ type FlightService interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 }
 
-func GetFlightHandler(service FlightService) gin.HandlerFunc {
+func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		flightID, err := uuid.Parse(c.Param("flightId"))
 		if err != nil {
@@ -27,6 +27,6 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 			return
 		}
-		c.JSON(http.StatusOK, nil)
+		c.JSON(http.StatusNoContent, nil)
 	}
 }
