@@ -6,17 +6,12 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
 )
 
 type FlightService interface {
 	Create(ctx context.Context, flight request.CreateFlight) (domain.Flight, error)
-	Get(ctx context.Context, id uuid.UUID) (*domain.Flight, error)
-	Update(ctx context.Context, flight domain.Flight) error
-	Delete(ctx context.Context, id uuid.UUID) error
-	GetAll(ctx context.Context, page, pageSize int) ([]domain.Flight, error)
 }
 
 func CreateFlightHandler(service FlightService) gin.HandlerFunc {
