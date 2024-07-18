@@ -98,7 +98,6 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 
 		resp := response.Signin{
 			AccessToken: token,
-			User:        domainUserToResponse(user),
 		}
 		c.JSON(http.StatusOK, resp)
 	}
