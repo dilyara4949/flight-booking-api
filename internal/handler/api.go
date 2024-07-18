@@ -5,7 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewAPI(cfg config.Config, authService AuthService, userService UserService) *gin.Engine {
+func NewAPI(cfg config.Config, authService AuthService, userService UserService, ticketService TicketService) *gin.Engine {
 	router := gin.Default()
 
 	api := router.Group("/api")
@@ -15,6 +15,11 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService)
 			auth := v1.Group("/auth")
 			{
 				auth.POST("/signup", SignupHandler(authService, userService, cfg))
+			}
+
+			tickets := v1.Group("/tickets")
+			{
+				tickets.GET(":ticketId", GetTicketHandler(ticketService))
 			}
 		}
 	}
