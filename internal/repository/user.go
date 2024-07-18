@@ -49,7 +49,7 @@ func (repo *UserRepository) Update(ctx context.Context, user domain.User) (domai
 			"phone":      user.Phone,
 			"updated_at": time.Now(),
 		}).Error; err != nil {
-		return user, fmt.Errorf("update user error: %w", err)
+		return domain.User{}, fmt.Errorf("update user error: %w", err)
 	}
 
 	return user, nil
