@@ -36,7 +36,10 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
 
-	apiHandler := handler.NewAPI(cfg, authService, userService)
+	ticketRepo := repository.NewTicketRepository(database)
+	ticketService := service.NewTicketService(ticketRepo)
+
+	apiHandler := handler.NewAPI(cfg, authService, userService, ticketService)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
