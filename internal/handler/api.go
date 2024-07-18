@@ -17,7 +17,7 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService,
 				auth.POST("/signup", SignupHandler(authService, userService, cfg))
 			}
 
-			tickets := v1.Group("/tickets")
+			tickets := v1.Group("/users/tickets")
 			{
 				tickets.GET(":ticketId", GetTicketHandler(ticketService))
 			}
