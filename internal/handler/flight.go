@@ -22,12 +22,12 @@ const (
 func GetAllFlights(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, err := strconv.Atoi(c.Query("page"))
-		if err != nil {
+		if err != nil || page <= 0 {
 			page = pageDefault
 		}
 
 		pageSize, err := strconv.Atoi(c.Query("page_size"))
-		if err != nil {
+		if err != nil || pageSize <= 0 {
 			pageSize = pageSizeDefault
 		}
 
