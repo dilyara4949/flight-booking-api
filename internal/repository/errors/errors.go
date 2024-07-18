@@ -2,4 +2,7 @@ package errors
 
 import "errors"
 
-var ErrUserNotFound = errors.New("user not found")
+var (
+	ErrTickerNotFound = errors.New("ticket not found")
+	ErrUserNotFound   = errors.New("user not found")
+)
