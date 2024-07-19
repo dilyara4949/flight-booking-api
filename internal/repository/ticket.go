@@ -22,7 +22,7 @@ func (repo *TicketRepository) BookTicket(ctx context.Context, ticket domain.Tick
 	return ticket, nil
 }
 
-func (repo *TicketRepository) CheckAvailability(ctx context.Context, flightID uuid.UUID) (bool, error) {
+func (repo *TicketRepository) CheckAvailability(ctx context.Context, flightID uuid.UUID, totalTickets int) (bool, error) {
 	var count int64
 	if err := repo.db.WithContext(ctx).
 		Model(&domain.Ticket{}).
@@ -31,7 +31,7 @@ func (repo *TicketRepository) CheckAvailability(ctx context.Context, flightID uu
 		return false, err
 	}
 
-	if count > 0 {
+	if int64(totalTickets)-count > 0 {
 		return true, nil
 	}
 	return false, nil

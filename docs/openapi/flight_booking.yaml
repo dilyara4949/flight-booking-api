@@ -114,14 +114,10 @@ components:
       type: object
       required:
         - flight_id
-        - rank
       properties:
         flight_id:
           type: string
           description: reference to flight id
-        rank:
-          type: string
-          description: reference to rank enum
     UpdateTicket:
       type: object
       required:
