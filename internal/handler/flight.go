@@ -7,10 +7,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"net/http"
+	"strconv"
 )
 
+const availableDefault = false
+
 type FlightService interface {
-	Get(ctx context.Context, id uuid.UUID) (*domain.Flight, error)
+	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
 }
 
 func GetFlightHandler(service FlightService) gin.HandlerFunc {
@@ -22,7 +25,12 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 
-		flight, err := service.Get(c, flightID)
+		available, err := strconv.ParseBool(c.Query("available"))
+		if err != nil {
+			available = availableDefault
+		}
+
+		flight, err := service.Get(c, flightID, available)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 

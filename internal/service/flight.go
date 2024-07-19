@@ -15,6 +15,6 @@ func NewFlightService(repo repository.FlightRepository) *Flight {
 	return &Flight{repo: repo}
 }
 
-func (service *Flight) Get(ctx context.Context, id uuid.UUID) (*domain.Flight, error) {
-	return service.repo.Get(ctx, id)
+func (service *Flight) Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error) {
+	return service.repo.Get(ctx, id, available)
 }

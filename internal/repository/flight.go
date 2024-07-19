@@ -8,6 +8,7 @@ import (
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"time"
 )
 
 type FlightRepository struct {
@@ -18,10 +19,18 @@ func NewFlightRepository(db *gorm.DB) FlightRepository {
 	return FlightRepository{db: db}
 }
 
-func (repo *FlightRepository) Get(ctx context.Context, id uuid.UUID) (*domain.Flight, error) {
+func (repo *FlightRepository) Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error) {
 	flight := domain.Flight{}
 
-	if err := repo.db.WithContext(ctx).First(&flight, "id = ?", id).Error; err != nil {
+	query := repo.db.WithContext(ctx)
+
+	if available {
+		now := time.Now()
+		twoHoursLater := now.Add(2 * time.Hour)
+		query = query.Where("start_date > ?", twoHoursLater)
+	}
+
+	if err := query.First(&flight, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errs.ErrFlightNotFound
 		}
