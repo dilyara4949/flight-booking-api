@@ -232,6 +232,7 @@ paths:
     get:
       parameters:
         - in: query
+          required: false
           name: available
           schema:
             type: boolean
