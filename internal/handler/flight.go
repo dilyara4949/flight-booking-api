@@ -32,7 +32,7 @@ func GetAllFlights(service FlightService) gin.HandlerFunc {
 			pageSize = pageSizeDefault
 		}
 
-		available, err := strconv.ParseBool(c.Query("has_seats"))
+		available, err := strconv.ParseBool(c.Query("available"))
 		if err != nil {
 			available = availableDefault
 		}
