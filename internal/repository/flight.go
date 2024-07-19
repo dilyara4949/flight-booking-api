@@ -16,14 +16,14 @@ func NewFlightRepository(db *gorm.DB) FlightRepository {
 	return FlightRepository{db: db}
 }
 
-func (repo *FlightRepository) GetAll(ctx context.Context, page, pageSize int, hasSeats bool) ([]domain.Flight, error) {
+func (repo *FlightRepository) GetAll(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error) {
 	flights := make([]domain.Flight, 0)
 
 	offset := (page - 1) * pageSize
 
 	query := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset)
 
-	if hasSeats {
+	if available {
 		now := time.Now()
 		twoHoursLater := now.Add(2 * time.Hour)
 		query = query.Where("start_date > ?", twoHoursLater)

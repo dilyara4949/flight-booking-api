@@ -14,6 +14,6 @@ func NewFlightService(repo repository.FlightRepository) *Flight {
 	return &Flight{repo: repo}
 }
 
-func (service *Flight) GetAll(ctx context.Context, page, pageSize int, hasSeats bool) ([]domain.Flight, error) {
-	return service.repo.GetAll(ctx, page, pageSize, hasSeats)
+func (service *Flight) GetAll(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error) {
+	return service.repo.GetAll(ctx, page, pageSize, available)
 }
