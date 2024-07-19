@@ -13,6 +13,7 @@ import (
 
 type TicketService interface {
 	BookTicket(ctx context.Context, req request.BookTicket, userID uuid.UUID, flight domain.Flight) (domain.Ticket, error)
+	CheckAvailability(ctx context.Context, flightID uuid.UUID) (bool, error)
 }
 
 func BookTicketHandler(ticketService TicketService, flightService FlightService) gin.HandlerFunc {
@@ -48,6 +49,18 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 		flight, err := flightService.Get(c, req.FlightID, true)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			return
+		}
+
+		available, err := ticketService.CheckAvailability(c, req.FlightID)
+		if err != nil {
+			slog.Error(err.Error(), "error")
+			c.JSON(http.StatusInternalServerError, response.Error{Error: "ticket is not available"})
+			return
+		}
+
+		if !available {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: "tickets aut of stock"})
 			return
 		}
 

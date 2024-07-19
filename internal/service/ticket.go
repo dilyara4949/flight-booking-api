@@ -32,3 +32,7 @@ func (service *Ticket) BookTicket(ctx context.Context, req request.BookTicket, u
 
 	return ticket, nil
 }
+
+func (service *Ticket) CheckAvailability(ctx context.Context, flightID uuid.UUID) (bool, error) {
+	return service.repo.CheckAvailability(ctx, flightID)
+}
