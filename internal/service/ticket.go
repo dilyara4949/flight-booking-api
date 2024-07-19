@@ -16,12 +16,13 @@ func NewTicketService(repo repository.TicketRepository) *Ticket {
 	return &Ticket{repo: repo}
 }
 
-func (service *Ticket) BookTicket(ctx context.Context, req request.BookTicket, userID uuid.UUID) (domain.Ticket, error) {
+func (service *Ticket) BookTicket(ctx context.Context, req request.BookTicket, userID uuid.UUID, flight domain.Flight) (domain.Ticket, error) {
 	ticket := domain.Ticket{
 		ID:       uuid.New(),
 		FlightID: req.FlightID,
 		UserID:   userID,
-		//////
+		Rank:     flight.Rank,
+		Price:    flight.Price,
 	}
 
 	ticket, err := service.repo.BookTicket(ctx, ticket)

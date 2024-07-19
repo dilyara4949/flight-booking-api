@@ -12,10 +12,10 @@ import (
 )
 
 type TicketService interface {
-	BookTicket(ctx context.Context, req request.BookTicket, userID uuid.UUID) (domain.Ticket, error)
+	BookTicket(ctx context.Context, req request.BookTicket, userID uuid.UUID, flight domain.Flight) (domain.Ticket, error)
 }
 
-func BookTicketHandler(service TicketService) gin.HandlerFunc {
+func BookTicketHandler(ticketService TicketService, flightService FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req request.BookTicket
 
@@ -45,9 +45,16 @@ func BookTicketHandler(service TicketService) gin.HandlerFunc {
 			return
 		}
 
-		ticket, err := service.BookTicket(c, req, userID)
+		flight, err := flightService.Get(c, req.FlightID, true)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			return
+		}
+
+		ticket, err := ticketService.BookTicket(c, req, userID, *flight)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			return
 		}
 
 		c.JSON(http.StatusOK, ticket)
