@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
@@ -47,7 +48,7 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	return user, err
 }
 
-func (service *User) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (service *User) GetUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	return service.repo.Get(ctx, id)
 }
 
@@ -56,15 +57,16 @@ func (service *User) DeleteUser(ctx context.Context, id uuid.UUID) error {
 }
 
 func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
-	user := domain.User{
-		ID:    userID,
-		Email: req.Email,
-		Phone: req.Phone,
-	}
-
-	_, err := service.GetUser(ctx, userID)
+	user, err := service.GetUser(ctx, userID)
 	if err != nil {
 		return domain.User{}, errs.ErrUserNotFound
+	}
+
+	user.Email = req.Email
+	user.Phone = req.Phone
+
+	if req.Role != "" {
+		user.Role = req.Role
 	}
 
 	user, err = service.repo.Update(ctx, user)

@@ -2,17 +2,18 @@ package handler
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"net/http"
 )
 
 type UserService interface {
 	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
-	GetUser(ctx context.Context, id uuid.UUID) (*domain.User, error)
+	GetUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error)
 }
 
