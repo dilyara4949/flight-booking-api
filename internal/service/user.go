@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -71,7 +70,7 @@ func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, use
 
 	user, err = service.repo.Update(ctx, user)
 	if err != nil {
-		return domain.User{}, errors.New("email already exists")
+		return domain.User{}, err
 	}
 
 	return user, nil
