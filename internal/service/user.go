@@ -3,9 +3,11 @@ package service
 import (
 	"context"
 	"fmt"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	"github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -42,6 +44,7 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	}
 
 	err = service.repo.Create(ctx, &user)
+
 	return user, err
 }
 
@@ -49,6 +52,23 @@ func (service *User) GetUser(ctx context.Context, id uuid.UUID) (*domain.User, e
 	return service.repo.Get(ctx, id)
 }
 
+func (service *User) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
+	return service.repo.GetByEmail(ctx, email)
+}
+
 func (service *User) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return service.repo.Delete(ctx, id)
+}
+
+func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error) {
+	user, err := service.repo.GetByEmail(ctx, signin.Email)
+	if err != nil {
+		return domain.User{}, errors.ErrUserNotFound
+	}
+
+	if bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(signin.Password)) != nil {
+		return domain.User{}, errors.ErrInvalidEmailPassword
+	}
+
+	return *user, nil
 }
