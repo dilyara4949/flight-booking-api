@@ -68,11 +68,11 @@ func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 	return users, nil
 }
 
-func (repo *UserRepository) UpdatePassword(ctx context.Context, user *domain.User) error {
+func (repo *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, newPassword string, requirePasswordReset bool) error {
 	return repo.db.WithContext(ctx).
-		Model(&user).
+		Model(&domain.User{ID: userID}).
 		Updates(map[string]interface{}{
-			"password":               user.Password,
-			"require_password_reset": false,
+			"password":               newPassword,
+			"require_password_reset": requirePasswordReset,
 		}).Error
 }

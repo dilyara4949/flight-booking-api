@@ -32,7 +32,7 @@ func ResetPasswordHandler(userService UserService) gin.HandlerFunc {
 			return
 		}
 
-		err = userService.ResetPassword(c, userID, req.NewPassword)
+		err = userService.ResetPassword(c, userID, req.NewPassword, true)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 			return

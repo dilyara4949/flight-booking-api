@@ -19,7 +19,7 @@ type AuthService interface {
 
 type UserService interface {
 	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
-	ResetPassword(ctx context.Context, userID uuid.UUID, newPassword string) error
+	ResetPassword(ctx context.Context, userID uuid.UUID, newPassword string, requirePasswordReset bool) error
 }
 
 func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
