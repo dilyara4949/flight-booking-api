@@ -2,13 +2,15 @@ package handler
 
 import (
 	"context"
+	"log/slog"
+	"net/http"
+
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
-	"log/slog"
-	"net/http"
+	"github.com/google/uuid"
 )
 
 type AuthService interface {
@@ -17,6 +19,7 @@ type AuthService interface {
 
 type UserService interface {
 	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
+	ResetPassword(ctx context.Context, userID uuid.UUID, newPassword string) error
 }
 
 func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {

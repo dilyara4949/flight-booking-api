@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
@@ -65,4 +66,13 @@ func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 	}
 
 	return users, nil
+}
+
+func (repo *UserRepository) UpdatePassword(ctx context.Context, user *domain.User) error {
+	return repo.db.WithContext(ctx).
+		Model(&user).
+		Updates(map[string]interface{}{
+			"password":               user.Password,
+			"require_password_reset": false,
+		}).Error
 }

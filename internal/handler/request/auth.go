@@ -5,3 +5,7 @@ type Signup struct {
 	Password string `json:"password"`
 	Role     string `json:"role"`
 }
+
+type ResetPassword struct {
+	NewPassword string `json:"new_password"`
+}
