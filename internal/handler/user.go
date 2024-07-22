@@ -15,6 +15,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
 	GetUser(ctx context.Context, id uuid.UUID) (domain.User, error)
 	UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error)
+	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
 }
 
 func UpdateUserHandler(userService UserService) gin.HandlerFunc {

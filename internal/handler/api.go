@@ -15,6 +15,7 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService)
 			auth := v1.Group("/auth")
 			{
 				auth.POST("/signup", SignupHandler(authService, userService, cfg))
+				auth.POST("/signin", SigninHandler(authService, userService, cfg))
 			}
 
 			users := v1.Group("/users")
