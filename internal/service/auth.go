@@ -2,12 +2,12 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"log/slog"
-	"time"
 )
 
 type Claims struct {
@@ -38,10 +38,6 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 
 	accessToken, err := token.SignedString([]byte(jwtSecret))
 	if err != nil {
-		err2 := service.DeleteUser(ctx, user.ID)
-		if err2 != nil {
-			slog.Error("delete user failed: %v", err2)
-		}
 		return "", err
 	}
 
