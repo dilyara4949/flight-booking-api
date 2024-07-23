@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	UserIDKey = "user_id"
-	//UserRoleKey = "user_role"
+	UserIDKey   = "user_id"
+	UserRoleKey = "user_role"
 )
 
 func JWTAuth(jwtSecret string) gin.HandlerFunc {
@@ -51,15 +51,15 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 				return
 			}
 
-			//claimedRole, ok := claims["role"].(string)
-			//if !ok {
-			//	slog.Error("authorization: no role property in claims", "error")
-			//	c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "invalid token"})
-			//	return
-			//}
+			claimedRole, ok := claims["role"].(string)
+			if !ok {
+				slog.Error("authorization: no role property in claims", "error")
+				c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "invalid token"})
+				return
+			}
 
 			c.Set(UserIDKey, claimedUID)
-			//c.Set(UserRoleKey, claimedRole)
+			c.Set(UserRoleKey, claimedRole)
 
 			c.Next()
 		}
