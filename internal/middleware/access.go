@@ -7,19 +7,29 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const userRole = "user"
+const UserRoleKey = "user_role"
 
-func AccessCheck(role string, param string) gin.HandlerFunc {
+func AccessCheck(allowedRoles ...string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if role == userRole {
-			contextParam := c.GetString(param)
-			pathParam := c.Param(param)
+		role, exists := c.Get(UserRoleKey)
+		if !exists {
+			c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
 
-			if contextParam != pathParam {
-				c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access denied"})
+		userRole, ok := role.(string)
+		if !ok {
+			c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "invalid role type"})
+			return
+		}
+
+		for _, allowedRole := range allowedRoles {
+			if userRole == allowedRole {
+				c.Next()
 				return
 			}
 		}
-		c.Next()
+
+		c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access denied"})
 	}
 }
