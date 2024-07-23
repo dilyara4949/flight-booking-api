@@ -1,13 +1,18 @@
 package middleware
 
 import (
-	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
-	"github.com/gin-gonic/gin"
 	"log/slog"
 	"net/http"
 	"strings"
 
+	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
+	"github.com/gin-gonic/gin"
+
 	jwt "github.com/golang-jwt/jwt/v4"
+)
+
+const (
+	UserIDKey = "user_id"
 )
 
 func JWTAuth(jwtSecret string) gin.HandlerFunc {
@@ -45,7 +50,7 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 				return
 			}
 
-			c.Set("user_id", claimedUID)
+			c.Set(UserIDKey, claimedUID)
 
 			c.Next()
 		}
