@@ -1,0 +1,167 @@
+package handler
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"reflect"
+	"strings"
+	"testing"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+
+	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
+)
+
+type authServiceMock struct {
+	token string
+	err   error
+}
+
+type userServiceMock struct {
+	user domain.User
+	err  error
+}
+
+func (s authServiceMock) CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (string, error) {
+	if s.err != nil {
+		return "", s.err
+	}
+	return s.token, nil
+}
+
+func (s userServiceMock) CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error) {
+	if s.err != nil {
+		return domain.User{}, s.err
+	}
+	return s.user, nil
+}
+
+func (s userServiceMock) ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error) {
+	return domain.User{}, nil
+}
+
+func TestSignupHandler(t *testing.T) {
+	tests := map[string]struct {
+		body         string
+		userService  userServiceMock
+		authService  authServiceMock
+		expectedCode int
+		expectedBody string
+	}{
+		"Valid signup": {
+			body: `{
+				"email": "test@example.com",
+				"password": "password",
+				"role": "user"
+			}`,
+			userService: userServiceMock{
+				user: domain.User{
+					ID:    uuid.New(),
+					Email: "test@example.com",
+					Role:  "user",
+				},
+			},
+			authService: authServiceMock{
+				token: "token123",
+			},
+			expectedCode: http.StatusOK,
+			expectedBody: `{"access_token":"token123","user":{"id":"%s","email":"test@example.com","phone":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}`,
+		},
+		"Invalid request body": {
+			body:         `{}`,
+			expectedCode: http.StatusBadRequest,
+			expectedBody: `{"error":"fields cannot be empty"}`,
+		},
+		"Error creating user": {
+			body: `{
+				"email": "test@example.com",
+				"password": "password",
+				"role": "user"
+			}`,
+			userService: userServiceMock{
+				err: errors.New("error creating user"),
+			},
+			expectedCode: http.StatusInternalServerError,
+			expectedBody: `{"error":"error creating user"}`,
+		},
+		"Error creating token": {
+			body: `{
+				"email": "test@example.com",
+				"password": "password",
+				"role": "user"
+			}`,
+			userService: userServiceMock{
+				user: domain.User{
+					ID:    uuid.New(),
+					Email: "test@example.com",
+					Role:  "user",
+				},
+			},
+			authService: authServiceMock{
+				err: errors.New("error creating token"),
+			},
+			expectedCode: http.StatusInternalServerError,
+			expectedBody: `{"error":"create access token error"}`,
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			gin.SetMode(gin.TestMode)
+			r := gin.New()
+
+			cfg := config.Config{
+				JWTTokenSecret:    "secret",
+				AccessTokenExpire: 3600,
+			}
+
+			r.POST("/signup", SignupHandler(tt.authService, tt.userService, cfg))
+
+			req, err := http.NewRequest(http.MethodPost, "/signup", strings.NewReader(tt.body))
+			if err != nil {
+				t.Fatalf("couldn't create request: %v", err)
+			}
+			req.Header.Set("Content-Type", "application/json")
+
+			w := httptest.NewRecorder()
+			r.ServeHTTP(w, req)
+
+			resp := w.Result()
+			if resp.StatusCode != tt.expectedCode {
+				t.Errorf("expected status %d, got %d", tt.expectedCode, resp.StatusCode)
+			}
+
+			body, err := io.ReadAll(resp.Body)
+			if err != nil {
+				t.Fatalf("couldn't read response body: %v", err)
+			}
+			defer resp.Body.Close()
+
+			if tt.expectedCode == http.StatusOK {
+				expectedBody := strings.Replace(tt.expectedBody, "%s", tt.userService.user.ID.String(), 1)
+				var expected, actual map[string]interface{}
+				if err = json.Unmarshal([]byte(expectedBody), &expected); err != nil {
+					t.Fatalf("couldn't unmarshal expected response: %v", err)
+				}
+				if err = json.Unmarshal(body, &actual); err != nil {
+					t.Fatalf("couldn't unmarshal actual response: %v", err)
+				}
+
+				if !reflect.DeepEqual(expected, actual) {
+					t.Errorf("expected body %v, got %v", expected, actual)
+				}
+			} else {
+				if string(body) != tt.expectedBody {
+					t.Errorf("expected body %s, got %s", tt.expectedBody, body)
+				}
+			}
+		})
+	}
+}
