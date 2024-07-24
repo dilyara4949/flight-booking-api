@@ -29,7 +29,7 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			return
 		}
 
-		if req.Password == "" || req.Email == "" || req.Role == "" {
+		if req.Password == "" || req.Email == "" {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
 
 			return
