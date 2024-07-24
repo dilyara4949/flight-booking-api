@@ -1,0 +1,1 @@
+ALTER TABLE users ADD COLUMN require_password_reset BOOLEAN DEFAULT FALSE;
