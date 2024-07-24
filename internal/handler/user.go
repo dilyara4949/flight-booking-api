@@ -19,6 +19,11 @@ type UserService interface {
 
 func DeleteUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !AccessCheck(*c, c.GetString("user_id"), "userId") {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+
 		userID, err := uuid.Parse(c.Param("userId"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
