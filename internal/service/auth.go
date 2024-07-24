@@ -2,15 +2,17 @@ package service
 
 import (
 	"context"
+	"time"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
-	"time"
 )
 
 type Claims struct {
 	UserID uuid.UUID `json:"user_id"`
+	Role   string    `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -28,6 +30,7 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 	expirationTime := time.Now().Add(time.Duration(expiry) * time.Hour)
 	claims := &Claims{
 		UserID: user.ID,
+		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
