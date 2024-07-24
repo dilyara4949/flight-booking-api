@@ -36,6 +36,13 @@ func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 			return
 		}
 
+		if req.Role != "" {
+			if !AccessCheck(*c, "", userIDParamKey) {
+				c.JSON(http.StatusForbidden, response.Error{Error: "access denied: not possible to change role"})
+				return
+			}
+		}
+
 		userID, err := uuid.Parse(c.Param(userIDParamKey))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
