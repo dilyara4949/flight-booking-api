@@ -39,10 +39,10 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	}
 
 	user := domain.User{
-		ID:       userid,
-		Email:    signup.Email,
-		Role:     userRole,
-		Password: string(encryptedPassword),
+		ID:                   userid,
+		Email:                signup.Email,
+		Role:                 userRole,
+		Password:             string(encryptedPassword),
 		RequirePasswordReset: false,
 	}
 
@@ -76,15 +76,25 @@ func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (d
 	return *user, nil
 }
 
-func (service *User) ResetPassword(ctx context.Context, userID uuid.UUID, newPassword string, requirePasswordReset bool) error {
+func (service *User) ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error {
+	user, err := service.ValidateUser(ctx, request.Signin{
+		Email:    req.Email,
+		Password: req.OldPassword,
+	})
+
+	if err != nil {
+		return err
+	}
+
 	encryptedPassword, err := bcrypt.GenerateFromPassword(
-		[]byte(newPassword),
+		[]byte(req.NewPassword),
 		bcrypt.DefaultCost,
 	)
+
 	if err != nil {
 		return fmt.Errorf("generate password error: %w", err)
 	}
 
-	err = service.repo.UpdatePassword(ctx, userID, string(encryptedPassword), requirePasswordReset)
+	err = service.repo.UpdatePassword(ctx, user.ID, string(encryptedPassword), requirePasswordReset)
 	return err
 }
