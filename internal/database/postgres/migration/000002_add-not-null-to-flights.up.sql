@@ -1,0 +1,7 @@
+ALTER TABLE flights
+    ALTER COLUMN start_date SET NOT NULL,
+    ALTER COLUMN end_date SET NOT NULL,
+    ALTER COLUMN departure SET NOT NULL,
+    ALTER COLUMN destination SET NOT NULL,
+    ALTER COLUMN price SET NOT NULL,
+    ALTER COLUMN total_tickets SET NOT NULL;
