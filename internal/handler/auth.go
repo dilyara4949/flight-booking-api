@@ -2,9 +2,10 @@ package handler
 
 import (
 	"context"
-	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"log/slog"
 	"net/http"
+
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -33,7 +34,7 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			return
 		}
 
-		if req.Password == "" || req.Email == "" || req.Role == "" {
+		if req.Password == "" || req.Email == "" {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
 
 			return
