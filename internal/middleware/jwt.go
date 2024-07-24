@@ -62,6 +62,7 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 			c.Set(UserRoleKey, claimedRole)
 
 			c.Next()
+			return
 		}
 		c.AbortWithStatusJSON(http.StatusUnauthorized, response.Error{Error: "invalid token"})
 	}
