@@ -11,12 +11,17 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
+	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 type AuthService interface {
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
+
+const (
+	adminRole = "admin"
+)
 
 func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -29,7 +34,7 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			return
 		}
 
-		if req.Password == "" || req.Email == "" || req.Role == "" {
+		if req.Password == "" || req.Email == "" {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
 
 			return
@@ -96,5 +101,34 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 			AccessToken: token,
 		}
 		c.JSON(http.StatusOK, resp)
+	}
+}
+
+func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool {
+	role, exists := req.Get(middleware.UserRoleKey)
+	if !exists {
+		return false
+	}
+
+	userRole, ok := role.(string)
+	if !ok {
+		return false
+	}
+
+	userID := req.Param(expectedIDKey)
+	if userRole == adminRole || expectedContextID == userID {
+		return true
+	}
+
+	return false
+}
+
+func domainUserToResponse(user domain.User) response.User {
+	return response.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 	}
 }
