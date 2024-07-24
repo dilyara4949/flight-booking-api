@@ -75,6 +75,15 @@ func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 	return users, nil
 }
 
+func (repo *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, newPassword string, requirePasswordReset bool) error {
+	return repo.db.WithContext(ctx).
+		Model(&domain.User{ID: userID}).
+		Updates(map[string]interface{}{
+			"password":               newPassword,
+			"require_password_reset": requirePasswordReset,
+		}).Error
+}
+
 func (repo *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {
 	var user domain.User
 
