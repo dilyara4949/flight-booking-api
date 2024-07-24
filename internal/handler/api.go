@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +21,10 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService,
 
 			flights := v1.Group("/flights")
 			{
-				flights.GET("/:flightId", GetFlightHandler(flightService))
+				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/:flightId", GetFlightHandler(flightService))
+				}
 			}
 		}
 	}
