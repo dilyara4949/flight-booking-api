@@ -15,6 +15,7 @@ type UserService interface {
 	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
+	ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error
 }
 
 func DeleteUserHandler(userService UserService) gin.HandlerFunc {

@@ -19,12 +19,6 @@ type AuthService interface {
 	CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (accessToken string, err error)
 }
 
-type UserService interface {
-	CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error)
-	ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error
-	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
-}
-
 const (
 	adminRole = "admin"
 )
