@@ -12,6 +12,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const userRole = "user"
+
 type User struct {
 	repo repository.UserRepository
 }
@@ -39,7 +41,7 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	user := domain.User{
 		ID:       userid,
 		Email:    signup.Email,
-		Role:     signup.Role,
+		Role:     userRole,
 		Password: string(encryptedPassword),
 	}
 
