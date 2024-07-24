@@ -12,6 +12,7 @@ import (
 
 type Claims struct {
 	UserID uuid.UUID `json:"user_id"`
+	Role   string    `json:"role"`
 	jwt.RegisteredClaims
 }
 
@@ -29,6 +30,7 @@ func (service *Auth) CreateAccessToken(ctx context.Context, user domain.User, jw
 	expirationTime := time.Now().Add(time.Duration(expiry) * time.Hour)
 	claims := &Claims{
 		UserID: user.ID,
+		Role:   user.Role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 		},
