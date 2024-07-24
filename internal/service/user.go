@@ -80,8 +80,13 @@ func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, use
 		return domain.User{}, errs.ErrUserNotFound
 	}
 
-	user.Email = req.Email
-	user.Phone = req.Phone
+	if req.Phone != "" {
+		user.Phone = req.Phone
+	}
+
+	if req.Email != "" {
+		user.Email = req.Email
+	}
 
 	if req.Role != "" {
 		user.Role = req.Role

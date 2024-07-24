@@ -122,13 +122,3 @@ func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool 
 
 	return false
 }
-
-func domainUserToResponse(user domain.User) response.User {
-	return response.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Phone:     user.Phone,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-	}
-}

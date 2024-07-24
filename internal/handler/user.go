@@ -18,8 +18,15 @@ type UserService interface {
 	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
 }
 
+const userIDParamKey = "userId"
+
 func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !AccessCheck(*c, c.GetString("user_id"), userIDParamKey) {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+
 		var req request.UpdateUser
 
 		err := c.ShouldBind(&req)
@@ -28,12 +35,7 @@ func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 			return
 		}
 
-		if req.Email == "" || req.Phone == "" {
-			c.JSON(http.StatusBadRequest, response.Error{Error: "fields cannot be empty"})
-			return
-		}
-
-		userID, err := uuid.Parse(c.Param("userId"))
+		userID, err := uuid.Parse(c.Param(userIDParamKey))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
 			return

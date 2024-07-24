@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +19,7 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService)
 				auth.POST("/signin", SigninHandler(authService, userService, cfg))
 			}
 
-			users := v1.Group("/users")
+			users := v1.Group("/users").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 			{
 				users.PUT("/:userId", UpdateUserHandler(userService))
 			}
