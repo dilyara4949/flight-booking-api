@@ -55,6 +55,10 @@ func (s userServiceMock) ValidateUser(ctx context.Context, signin request.Signin
 	return s.user, nil
 }
 
+func (s userServiceMock) ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error {
+	return nil
+}
+
 func TestSignupHandler(t *testing.T) {
 	tests := map[string]struct {
 		body         string
