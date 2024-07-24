@@ -12,7 +12,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
-	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/gin-gonic/gin"
 )
 
