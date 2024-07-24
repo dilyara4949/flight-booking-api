@@ -88,6 +88,12 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 			return
 		}
 
+		if user.RequirePasswordReset {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied: reset password required"})
+
+			return
+		}
+
 		token, err := authService.CreateAccessToken(c, user, cfg.JWTTokenSecret, cfg.AccessTokenExpire)
 		if err != nil {
 			slog.Error("signin: error at creating access token,", "error", err.Error())
@@ -121,4 +127,29 @@ func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool 
 	}
 
 	return false
+}
+
+func ResetPasswordHandler(userService UserService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req request.ResetPassword
+
+		err := c.ShouldBind(&req)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "error at binding request body"})
+			return
+		}
+
+		if req.NewPassword == "" || req.OldPassword == "" || req.Email == "" {
+			c.JSON(http.StatusBadRequest, response.Error{Error: response.ErrEmptyRequestFields.Error()})
+			return
+		}
+
+		err = userService.ResetPassword(c, req, false)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, "password reset successful")
+	}
 }

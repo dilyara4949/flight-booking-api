@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"github.com/google/uuid"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type User struct {
@@ -11,6 +12,7 @@ type User struct {
 	Phone     string    `gorm:"phone"                                json:"phone"`
 	Password  string    `gorm:"not null"                             json:"password"`
 	Role      string    `gorm:"role"                                 json:"role"`
+	RequirePasswordReset bool      `gorm:"default:false"                        json:"require_password_reset"`
 	CreatedAt time.Time `gorm:"autoCreateTime"                       json:"created_at"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"                       json:"updated_at"`
 }
