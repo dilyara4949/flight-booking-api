@@ -98,3 +98,7 @@ func (service *User) ResetPassword(ctx context.Context, req request.ResetPasswor
 	err = service.repo.UpdatePassword(ctx, user.ID, string(encryptedPassword), requirePasswordReset)
 	return err
 }
+
+func (service *User) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+	return service.repo.GetAll(ctx, page, pageSize)
+}
