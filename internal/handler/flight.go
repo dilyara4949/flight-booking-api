@@ -5,8 +5,8 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
-	"log/slog"
 	"github.com/google/uuid"
+	"log/slog"
 	"net/http"
 	"strconv"
 )
@@ -17,27 +17,17 @@ type FlightService interface {
 }
 
 const (
-	pageDefault      = 1
-	pageSizeDefault  = 30
 	availableDefault = false
 )
 
 func GetFlights(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		page, err := strconv.Atoi(c.Query("page"))
-		if err != nil || page <= 0 {
-			page = pageDefault
-		}
-
-		pageSize, err := strconv.Atoi(c.Query("page_size"))
-		if err != nil || pageSize <= 0 {
-			pageSize = pageSizeDefault
-		}
-
 		available, err := strconv.ParseBool(c.Query("available"))
 		if err != nil {
 			available = availableDefault
 		}
+
+		page, pageSize := GetPageInfo(c)
 
 		flights, err := service.GetFlights(c, page, pageSize, available)
 		if err != nil {
