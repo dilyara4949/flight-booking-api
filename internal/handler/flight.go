@@ -27,9 +27,7 @@ func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 
-		if req.StartDate.IsZero() || req.EndDate.IsZero() ||
-			req.Departure == "" || req.Destination == "" ||
-			req.Rank == "" || req.TotalTickets == 0 || req.Price == 0 {
+		if ValidateFlightRequest(req) {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "request fields cannot be empty"})
 
 			return
@@ -43,4 +41,13 @@ func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 		}
 		c.JSON(http.StatusOK, flight)
 	}
+}
+
+func ValidateFlightRequest(req request.CreateFlight) bool {
+	if req.StartDate.IsZero() || req.EndDate.IsZero() ||
+		req.Departure == "" || req.Destination == "" ||
+		req.Rank == "" || req.TotalTickets == 0 || req.Price == 0 {
+		return false
+	}
+	return true
 }
