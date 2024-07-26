@@ -26,9 +26,7 @@ func (repo *FlightRepository) GetFlights(ctx context.Context, page, pageSize int
 	query := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset)
 
 	if available {
-		now := time.Now()
-		twoHoursLater := now.Add(2 * time.Hour)
-		query = query.Where("start_date > ?", twoHoursLater)
+		AddDateFilter(query)
 	}
 
 	if err := query.Find(&flights).Error; err != nil {
@@ -49,3 +47,8 @@ func (repo *FlightRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
+func AddDateFilter(query *gorm.DB) {
+	now := time.Now()
+	twoHoursLater := now.Add(2 * time.Hour)
+	query.Where("start_date > ?", twoHoursLater)
+}
