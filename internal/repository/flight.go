@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"time"
 )
@@ -34,3 +36,16 @@ func (repo *FlightRepository) GetFlights(ctx context.Context, page, pageSize int
 	}
 	return flights, nil
 }
+
+func (repo *FlightRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	res := repo.db.WithContext(ctx).Delete(&domain.Flight{}, id)
+	if res.Error != nil {
+		return fmt.Errorf("delete flight error: %w", res.Error)
+	}
+
+	if res.RowsAffected == 0 {
+		return errs.ErrFlightNotFound
+	}
+	return nil
+}
+

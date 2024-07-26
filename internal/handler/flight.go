@@ -6,12 +6,14 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
 	"log/slog"
+	"github.com/google/uuid"
 	"net/http"
 	"strconv"
 )
 
 type FlightService interface {
 	GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
+	Delete(ctx context.Context, id uuid.UUID) error
 }
 
 const (
@@ -45,5 +47,24 @@ func GetFlights(service FlightService) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusOK, flights)
+	}
+}
+
+func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		flightID, err := uuid.Parse(c.Param("flightId"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+
+			return
+		}
+
+		err = service.Delete(c, flightID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+
+			return
+		}
+		c.JSON(http.StatusNoContent, nil)
 	}
 }
