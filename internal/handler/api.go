@@ -19,12 +19,20 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService,
 				auth.POST("/signin", SigninHandler(authService, userService, cfg))
 				auth.POST("/reset-password", ResetPasswordHandler(userService))
 			}
+			users := v1.Group("/users").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+			{
+				users.DELETE("/:userId", DeleteUserHandler(userService))
+			}
 
 			flights := v1.Group("/flights")
 			{
 				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
 					private.GET("/:flightId", GetFlightHandler(flightService))
+				}
+				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
+				{
+					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
 		}

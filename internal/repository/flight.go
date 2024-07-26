@@ -42,3 +42,16 @@ func addDateFilter(query *gorm.DB) {
 	twoHoursLater := now.Add(2 * time.Hour)
 	query.Where("start_date > ?", twoHoursLater)
 }
+
+func (repo *FlightRepository) Delete(ctx context.Context, id uuid.UUID) error {
+	res := repo.db.WithContext(ctx).Delete(&domain.Flight{}, id)
+	if res.Error != nil {
+		return fmt.Errorf("delete flight error: %w", res.Error)
+	}
+
+	if res.RowsAffected == 0 {
+		return errs.ErrFlightNotFound
+	}
+	return nil
+}
+
