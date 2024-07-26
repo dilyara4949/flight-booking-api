@@ -30,7 +30,6 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 				auth.POST("/signin", SigninHandler(authService, userService, cfg))
 				auth.POST("/reset-password", ResetPasswordHandler(userService))
 			}
-
 			users := v1.Group("/users").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 			{
 				users.DELETE("/:userId", DeleteUserHandler(userService))
@@ -41,6 +40,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
+					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
 		}
