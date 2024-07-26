@@ -122,7 +122,7 @@ func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool 
 	}
 
 	userID := req.Param(expectedIDKey)
-	if userRole == adminRole || expectedContextID == userID {
+	if userRole == adminRole || expectedContextID == userID && expectedContextID != "" {
 		return true
 	}
 
