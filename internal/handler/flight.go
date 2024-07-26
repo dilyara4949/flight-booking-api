@@ -59,4 +59,3 @@ func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
 		c.JSON(http.StatusNoContent, nil)
 	}
 }
-
