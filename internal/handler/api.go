@@ -24,7 +24,7 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService,
 			{
 				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
-					private.GET("", GetAllFlights(flightService))
+					private.GET("/", GetFlights(flightService))
 				}
 			}
 		}

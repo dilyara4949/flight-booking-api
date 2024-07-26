@@ -16,7 +16,7 @@ func NewFlightRepository(db *gorm.DB) FlightRepository {
 	return FlightRepository{db: db}
 }
 
-func (repo *FlightRepository) GetAll(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error) {
+func (repo *FlightRepository) GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error) {
 	flights := make([]domain.Flight, 0)
 
 	offset := (page - 1) * pageSize

@@ -11,7 +11,7 @@ import (
 )
 
 type FlightService interface {
-	GetAll(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
+	GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
 }
 
 const (
@@ -20,7 +20,7 @@ const (
 	availableDefault = false
 )
 
-func GetAllFlights(service FlightService) gin.HandlerFunc {
+func GetFlights(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, err := strconv.Atoi(c.Query("page"))
 		if err != nil || page <= 0 {
@@ -37,7 +37,7 @@ func GetAllFlights(service FlightService) gin.HandlerFunc {
 			available = availableDefault
 		}
 
-		flights, err := service.GetAll(c, page, pageSize, available)
+		flights, err := service.GetFlights(c, page, pageSize, available)
 		if err != nil {
 			slog.Error("error at getting flights", "error", err.Error())
 			c.JSON(http.StatusInternalServerError, response.Error{Error: "error at getting flights"})
