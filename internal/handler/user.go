@@ -6,9 +6,8 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 	"github.com/google/uuid"
+	"net/http"
 )
 
 type UserService interface {
@@ -19,22 +18,9 @@ type UserService interface {
 	GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error)
 }
 
-const (
-	pageDefault     = 1
-	pageSizeDefault = 30
-)
-
 func GetAllUsersHandler(service UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		page, err := strconv.Atoi(c.Query("page"))
-		if err != nil || page <= 0 {
-			page = pageDefault
-		}
-
-		pageSize, err := strconv.Atoi(c.Query("page_size"))
-		if err != nil || pageSize <= 0 {
-			pageSize = pageSizeDefault
-		}
+		page, pageSize := GetPageInfo(c)
 
 		users, err := service.GetAll(c, page, pageSize)
 		if err != nil {
