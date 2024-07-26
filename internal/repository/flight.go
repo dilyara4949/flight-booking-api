@@ -25,9 +25,7 @@ func (repo *FlightRepository) Get(ctx context.Context, id uuid.UUID, available b
 	query := repo.db.WithContext(ctx)
 
 	if available {
-		now := time.Now()
-		twoHoursLater := now.Add(2 * time.Hour)
-		query = query.Where("start_date > ?", twoHoursLater)
+		addDateFilter(query)
 	}
 
 	if err := query.First(&flight, "id = ?", id).Error; err != nil {
@@ -37,4 +35,10 @@ func (repo *FlightRepository) Get(ctx context.Context, id uuid.UUID, available b
 		return nil, fmt.Errorf("get flight error: %w", err)
 	}
 	return &flight, nil
+}
+
+func addDateFilter(query *gorm.DB) {
+	now := time.Now()
+	twoHoursLater := now.Add(2 * time.Hour)
+	query.Where("start_date > ?", twoHoursLater)
 }
