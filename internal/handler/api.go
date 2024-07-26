@@ -3,10 +3,21 @@ package handler
 import (
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
+	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
-func NewAPI(cfg config.Config, authService AuthService, userService UserService, flightService FlightService) *gin.Engine {
+func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
+	userRepo := repository.NewUserRepository(database)
+	userService := service.NewUserService(userRepo)
+
+	authService := service.NewAuthService(userRepo)
+
+	flightRepo := repository.NewFlightRepository(database)
+	flightService := service.NewFlightService(flightRepo)
+
 	router := gin.Default()
 
 	api := router.Group("/api")
@@ -24,7 +35,7 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService,
 			{
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
-					admin.POST("", CreateFlightHandler(flightService))
+					admin.POST("/", CreateFlightHandler(flightService))
 				}
 			}
 		}

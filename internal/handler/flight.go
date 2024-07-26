@@ -27,7 +27,7 @@ func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 
-		if ValidateFlightRequest(req) {
+		if !ValidateFlightRequest(req) {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "request fields cannot be empty"})
 
 			return
