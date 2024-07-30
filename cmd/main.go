@@ -19,7 +19,7 @@ import (
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
-		slog.Error("error getting config: %w", err)
+		slog.Error("error getting config:", "error", err.Error())
 		return
 	}
 
@@ -28,7 +28,7 @@ func main() {
 
 	database, err := postgres.Connect(ctx, cfg.Postgres)
 	if err != nil {
-		slog.Error("database connection failed:", err)
+		slog.Error("database connection failed:", "error", err.Error())
 		return
 	}
 
@@ -36,7 +36,10 @@ func main() {
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
 
-	apiHandler := handler.NewAPI(cfg, authService, userService)
+	flightRepo := repository.NewFlightRepository(database)
+	flightService := service.NewFlightService(flightRepo)
+
+	apiHandler := handler.NewAPI(cfg, authService, userService, flightService)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
