@@ -21,6 +21,7 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (repo *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	if err := repo.db.WithContext(ctx).Create(&user).Error; err != nil {
+		fmt.Println(user)
 		return fmt.Errorf("create user error: %w", err)
 	}
 
@@ -50,8 +51,13 @@ func (repo *UserRepository) Update(ctx context.Context, user domain.User) error 
 }
 
 func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
-	if err := repo.db.WithContext(ctx).Delete(&domain.User{}, id).Error; err != nil {
-		return fmt.Errorf("delete user error: %w", err)
+	res := repo.db.WithContext(ctx).Delete(&domain.User{}, id)
+	if res.Error != nil {
+		return fmt.Errorf("delete user error: %w", res.Error)
+	}
+
+	if res.RowsAffected == 0 {
+		return errs.ErrUserNotFound
 	}
 
 	return nil
@@ -67,6 +73,15 @@ func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]d
 	}
 
 	return users, nil
+}
+
+func (repo *UserRepository) UpdatePassword(ctx context.Context, userID uuid.UUID, newPassword string, requirePasswordReset bool) error {
+	return repo.db.WithContext(ctx).
+		Model(&domain.User{ID: userID}).
+		Updates(map[string]interface{}{
+			"password":               newPassword,
+			"require_password_reset": requirePasswordReset,
+		}).Error
 }
 
 func (repo *UserRepository) GetByEmail(ctx context.Context, email string) (*domain.User, error) {

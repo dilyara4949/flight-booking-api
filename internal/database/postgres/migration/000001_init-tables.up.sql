@@ -23,13 +23,13 @@ CREATE TABLE ranks (
 
 CREATE TABLE flights (
                          id UUID PRIMARY KEY,
-                         start_date TIMESTAMP NOT NULL ,
-                         end_date TIMESTAMP NOT NULL ,
-                         departure VARCHAR NOT NULL ,
-                         destination VARCHAR NOT NULL ,
+                         start_date TIMESTAMP,
+                         end_date TIMESTAMP,
+                         departure VARCHAR,
+                         destination VARCHAR,
                          rank VARCHAR,
-                         price BIGINT NOT NULL ,
-                         total_tickets INT NOT NULL ,
+                         price BIGINT,
+                         total_tickets INT,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          FOREIGN KEY (rank) REFERENCES Ranks(name)

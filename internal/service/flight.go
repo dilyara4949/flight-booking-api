@@ -29,4 +29,9 @@ func (service *Flight) Create(ctx context.Context, req request.CreateFlight) (do
 	}
 
 	return service.repo.Create(ctx, flight)
+
+}
+
+func (service *Flight) Delete(ctx context.Context, id uuid.UUID) error {
+	return service.repo.Delete(ctx, id)
 }
