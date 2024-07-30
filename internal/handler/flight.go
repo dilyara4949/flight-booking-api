@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
+	"log/slog"
+	"net/http"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"log/slog"
-	"net/http"
 )
 
 type FlightService interface {
@@ -65,13 +66,4 @@ func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
 		}
 		c.JSON(http.StatusNoContent, nil)
 	}
-}
-
-func ValidateFlightRequest(req request.CreateFlight) bool {
-	if req.StartDate.IsZero() || req.EndDate.IsZero() ||
-		req.Departure == "" || req.Destination == "" ||
-		req.Rank == "" || req.TotalTickets == 0 || req.Price == 0 {
-		return false
-	}
-	return true
 }
