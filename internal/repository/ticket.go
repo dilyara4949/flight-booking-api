@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
@@ -16,10 +17,12 @@ func NewTicketRepository(db *gorm.DB) TicketRepository {
 	return TicketRepository{db: db}
 }
 
-func (repo *TicketRepository) GetAll(ctx context.Context, userID uuid.UUID) ([]domain.Ticket, error) {
+func (repo *TicketRepository) GetAll(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
 	tickets := make([]domain.Ticket, 0)
 
-	if err := repo.db.WithContext(ctx).Find(tickets, "user_id = ?", userID).Error; err != nil {
+	offset := (page - 1) * pageSize
+
+	if err := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset).Find(tickets, "user_id = ?", userID).Error; err != nil {
 		return nil, errs.ErrTicketNotFound
 	}
 	return tickets, nil
