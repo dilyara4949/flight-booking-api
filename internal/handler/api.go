@@ -38,7 +38,7 @@ func NewAPI(cfg config.Config, database *gorm.DB, authService AuthService, userS
 				}
 			}
 
-			tickets := v1.Group("/tickets")
+			tickets := v1.Group("/users/tickets")
 			{
 				private := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
