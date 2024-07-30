@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func NewAPI(cfg config.Config, authService AuthService, userService UserService) *gin.Engine {
+func NewAPI(cfg config.Config, authService AuthService, userService UserService, flightService FlightService) *gin.Engine {
 	router := gin.Default()
 
 	api := router.Group("/api")
@@ -22,7 +22,16 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService)
 
 			users := v1.Group("/users").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 			{
+				users.DELETE("/:userId", DeleteUserHandler(userService))
 				users.PUT("/:userId", UpdateUserHandler(userService))
+			}
+
+			flights := v1.Group("/flights")
+			{
+				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
+				{
+					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
+				}
 			}
 		}
 	}
