@@ -2,4 +2,8 @@ package errors
 
 import "errors"
 
-var ErrUserNotFound = errors.New("user not found")
+var (
+	ErrFlightNotFound       = errors.New("flight not found")
+	ErrUserNotFound         = errors.New("user not found")
+	ErrInvalidEmailPassword = errors.New("invalid email or password")
+)
