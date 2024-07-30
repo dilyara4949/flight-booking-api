@@ -2,12 +2,14 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"log/slog"
+	"net/http"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
-	"log/slog"
-	"net/http"
 )
 
 type FlightService interface {
@@ -27,11 +29,10 @@ func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 
-		if req.StartDate.IsZero() || req.EndDate.IsZero() ||
-			req.Departure == "" || req.Destination == "" ||
-			req.Rank == "" || req.TotalTickets == 0 || req.Price == 0 {
-			c.JSON(http.StatusBadRequest, response.Error{Error: "request fields cannot be empty"})
-
+		if err = req.Validate(); err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{
+				Error: fmt.Sprintf("request fields cannot be empty: %v", err.Error()),
+			})
 			return
 		}
 
