@@ -3,17 +3,18 @@ package main
 import (
 	"context"
 	"errors"
-	"github.com/dilyara4949/flight-booking-api/internal/config"
-	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
-	"github.com/dilyara4949/flight-booking-api/internal/handler"
-	"github.com/dilyara4949/flight-booking-api/internal/repository"
-	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
+	"github.com/dilyara4949/flight-booking-api/internal/handler"
+	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	"github.com/dilyara4949/flight-booking-api/internal/service"
 )
 
 func main() {
@@ -42,7 +43,7 @@ func main() {
 	ticketRepo := repository.NewTicketRepository(database)
 	ticketService := service.NewTicketService(ticketRepo)
 
-	apiHandler := handler.NewAPI(cfg, authService, userService, ticketService)
+	apiHandler := handler.NewAPI(cfg, authService, userService, flightService, ticketService)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
