@@ -2,12 +2,12 @@ package handler
 
 import (
 	"context"
-	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"net/http"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
+	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
