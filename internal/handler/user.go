@@ -15,14 +15,14 @@ type UserService interface {
 	ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
-	GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error)
+	GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error)
 }
 
-func GetAllUsersHandler(service UserService) gin.HandlerFunc {
+func GetUsersHandler(service UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		page, pageSize := GetPageInfo(c)
 
-		users, err := service.GetAll(c, page, pageSize)
+		users, err := service.GetUsers(c, page, pageSize)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 			return

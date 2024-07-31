@@ -33,7 +33,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			{
 				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(adminRole))
 				{
-					admin.GET("", GetAllUsersHandler(userService))
+					admin.GET("/", GetUsersHandler(userService))
 				}
 				users.DELETE("/:userId", DeleteUserHandler(userService))
 

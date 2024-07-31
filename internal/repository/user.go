@@ -63,7 +63,7 @@ func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+func (repo *UserRepository) GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error) {
 	var users []domain.User
 
 	offset := (page - 1) * pageSize
