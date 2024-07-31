@@ -62,8 +62,11 @@ func (s userServiceMock) ResetPassword(ctx context.Context, req request.ResetPas
 func (s userServiceMock) DeleteUser(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
-
 func (s userServiceMock) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	return domain.User{}, nil
+}
+
+func (s userServiceMock) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
 	return domain.User{}, nil
 }
 
@@ -341,6 +344,11 @@ func TestAccessCheck(t *testing.T) {
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "1",
+			expectedResult:    false,
+		},
+		"expectedContextID is empty": {
+			role:              userRole,
+			expectedContextID: "",
 			expectedResult:    false,
 		},
 	}

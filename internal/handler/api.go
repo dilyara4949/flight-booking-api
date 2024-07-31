@@ -40,6 +40,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 				}
 				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
+					users.PUT("/:userId", UpdateUserHandler(userService))
 					private.DELETE("/:userId", DeleteUserHandler(userService))
 					private.GET("/:userId", GetUserHandler(userService))
 				}
@@ -61,8 +62,10 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 
 			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 			{
-				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
 				tickets.GET("/", GetTickets(ticketService))
+				tickets.GET(":ticketId", GetTicketHandler(ticketService))
+				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
+				tickets.DELETE("/:ticketId", DeleteTicketHandler(ticketService))
 			}
 		}
 	}
