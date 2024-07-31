@@ -17,6 +17,9 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 	flightRepo := repository.NewFlightRepository(database)
 	flightService := service.NewFlightService(flightRepo)
 
+	ticketRepo := repository.NewTicketRepository(database)
+	ticketService := service.NewTicketService(ticketRepo)
+
 	router := gin.Default()
 
 	api := router.Group("/api")
@@ -35,15 +38,29 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 				{
 					admin.GET("/", GetUsersHandler(userService))
 				}
-				users.DELETE("/:userId", DeleteUserHandler(userService))
-
+				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.DELETE("/:userId", DeleteUserHandler(userService))
+					private.GET("/:userId", GetUserHandler(userService))
+				}
 			}
+
 			flights := v1.Group("/flights")
 			{
+				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/:flightId", GetFlightHandler(flightService))
+				}
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
+					admin.POST("/", CreateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
+			}
+
+			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+			{
+				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
 			}
 		}
 	}

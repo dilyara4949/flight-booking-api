@@ -28,18 +28,18 @@ func (repo *UserRepository) Create(ctx context.Context, user *domain.User) error
 	return nil
 }
 
-func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (*domain.User, error) {
+func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	var user domain.User
 
 	if err := repo.db.WithContext(ctx).First(&user, "id = ?", id).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, errs.ErrUserNotFound
+			return domain.User{}, errs.ErrUserNotFound
 		}
 
-		return nil, fmt.Errorf("get user error: %w", err)
+		return domain.User{}, fmt.Errorf("get user error: %w", err)
 	}
 
-	return &user, nil
+	return user, nil
 }
 
 func (repo *UserRepository) Update(ctx context.Context, user domain.User) error {
