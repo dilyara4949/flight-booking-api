@@ -2,6 +2,7 @@ package handler
 
 import (
 	"context"
+	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"net/http"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -9,14 +10,12 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"log/slog"
 )
 
 type TicketService interface {
 	Get(ctx context.Context, ticketID, userID uuid.UUID) (domain.Ticket, error)
 	Update(ctx context.Context, ticketID, userID uuid.UUID, req request.UpdateTicket) (domain.Ticket, error)
 }
-
 
 func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
@@ -57,22 +56,20 @@ func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 
 func GetTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+
 		ticketID, err := uuid.Parse(c.Param("ticketId"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "ticket id format is not correct"})
 			return
 		}
 
-		userIDStr := c.GetString("user_id")
-		if userIDStr == "" {
-			c.JSON(http.StatusInternalServerError, response.Error{Error: "user token set incorrectly"})
-			return
-		}
-
-		userID, err := uuid.Parse(userIDStr)
+		userID, err := uuid.Parse(c.Param(userIDParamKey))
 		if err != nil {
-			slog.Error("user id format is not correct at jwt", "error", err.Error())
-			c.JSON(http.StatusBadRequest, response.Error{Error: "user token set incorrectly"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "user id is not correct"})
 			return
 		}
 
