@@ -13,8 +13,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
-	"github.com/dilyara4949/flight-booking-api/internal/repository"
-	"github.com/dilyara4949/flight-booking-api/internal/service"
 )
 
 func main() {
