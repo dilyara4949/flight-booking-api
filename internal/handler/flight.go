@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
