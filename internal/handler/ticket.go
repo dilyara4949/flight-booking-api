@@ -58,7 +58,7 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 
 		available, err := ticketService.CheckAvailability(c, req.FlightID, flight.TotalTickets)
 		if err != nil {
-			slog.Error(err.Error(), "error")
+			slog.Error(err.Error(), "error", "error at checking flight availability")
 			c.JSON(http.StatusInternalServerError, response.Error{Error: "ticket is not available"})
 			return
 		}
