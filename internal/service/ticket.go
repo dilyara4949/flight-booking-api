@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
-	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 )
 
@@ -40,4 +40,8 @@ func (service *Ticket) Update(ctx context.Context, ticketID, userID uuid.UUID, r
 	ticket.Price = req.Price
 
 	return service.repo.Update(ctx, ticket)
+}
+
+func (service *Ticket) GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
+	return service.repo.GetTickets(ctx, userID, page, pageSize)
 }
