@@ -59,6 +59,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			{
 				tickets.GET(":ticketId", GetTicketHandler(ticketService))
 				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
+				tickets.GET("/", GetTickets(ticketService))
 			}
 		}
 	}
