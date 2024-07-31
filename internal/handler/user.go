@@ -17,6 +17,7 @@ type UserService interface {
 	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
 	GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error)
+	ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error
 }
 
 const userIDParamKey = "userId"
