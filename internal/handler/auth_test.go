@@ -70,6 +70,10 @@ func (s userServiceMock) UpdateUser(ctx context.Context, req request.UpdateUser,
 	return domain.User{}, nil
 }
 
+func (s userServiceMock) GetUsers(ctx context.Context, page int, pageSize int) ([]domain.User, error) {
+	return nil, nil
+}
+
 func TestSignupHandler(t *testing.T) {
 	tests := map[string]struct {
 		body         string
