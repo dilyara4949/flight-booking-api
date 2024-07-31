@@ -51,7 +51,7 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	return user, err
 }
 
-func (service *User) GetUser(ctx context.Context, id uuid.UUID) (domain.User, error) {
+func (service *User) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
 	return service.repo.Get(ctx, id)
 }
 
@@ -77,7 +77,7 @@ func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (d
 }
 
 func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
-	user, err := service.GetUser(ctx, userID)
+	user, err := service.Get(ctx, userID)
 	if err != nil {
 		return domain.User{}, errs.ErrUserNotFound
 	}

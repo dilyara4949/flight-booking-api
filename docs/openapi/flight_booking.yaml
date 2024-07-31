@@ -307,6 +307,12 @@ paths:
         - flights
       security:
         - BearerAuth: [ ]
+      parameters:
+        - name: available
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: "OK"
