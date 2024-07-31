@@ -67,7 +67,7 @@ func (s userServiceMock) Get(ctx context.Context, id uuid.UUID) (domain.User, er
 	return domain.User{}, nil
 }
 
-func (s userServiceMock) GetAll(ctx context.Context, page int, pageSize int) ([]domain.User, error) {
+func (s userServiceMock) GetUsers(ctx context.Context, page int, pageSize int) ([]domain.User, error) {
 	return nil, nil
 }
 
