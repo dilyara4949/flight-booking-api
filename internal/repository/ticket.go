@@ -19,6 +19,18 @@ func NewTicketRepository(db *gorm.DB) TicketRepository {
 	return TicketRepository{db: db}
 }
 
+func (repo *TicketRepository) Delete(ctx context.Context, ticketID, userID uuid.UUID) error {
+	res := repo.db.WithContext(ctx).Delete(domain.Ticket{ID: ticketID, UserID: userID})
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected == 0 {
+		return errs.ErrTicketNotFound
+	}
+	return nil
+}
+
 func (repo *TicketRepository) GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
 	tickets := make([]domain.Ticket, 0)
 
