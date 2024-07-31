@@ -11,12 +11,14 @@ import (
 
 func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 	userRepo := repository.NewUserRepository(database)
-	userService := service.NewUserService(userRepo)
-
 	authService := service.NewAuthService(userRepo)
+	userService := service.NewUserService(userRepo)
 
 	flightRepo := repository.NewFlightRepository(database)
 	flightService := service.NewFlightService(flightRepo)
+
+	ticketRepo := repository.NewTicketRepository(database)
+	ticketService := service.NewTicketService(ticketRepo)
 
 	router := gin.Default()
 
@@ -38,6 +40,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 					private.GET("/:userId", GetUserHandler(userService))
 				}
 			}
+
 			flights := v1.Group("/flights")
 			{
 				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
@@ -49,6 +52,11 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 					admin.POST("/", CreateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
+			}
+
+			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+			{
+				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
 			}
 		}
 	}
