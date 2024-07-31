@@ -3,24 +3,45 @@ package handler
 import (
 	"context"
 	"fmt"
-	"strconv"
-
-	"log/slog"
-	"net/http"
-
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"log/slog"
+	"net/http"
+	"strconv"
 )
 
-const availableDefault = false
-
 type FlightService interface {
+	GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
 	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
 	Create(ctx context.Context, flight request.CreateFlight) (domain.Flight, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+const (
+	availableDefault = false
+)
+
+func GetFlights(service FlightService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		available, err := strconv.ParseBool(c.Query("available"))
+		if err != nil {
+			available = availableDefault
+		}
+
+		page, pageSize := GetPageInfo(c)
+
+		flights, err := service.GetFlights(c, page, pageSize, available)
+		if err != nil {
+			slog.Error("error at getting flights", "error", err.Error())
+			c.JSON(http.StatusInternalServerError, response.Error{Error: "error at getting flights"})
+
+			return
+		}
+		c.JSON(http.StatusOK, flights)
+	}
 }
 
 func GetFlightHandler(service FlightService) gin.HandlerFunc {
