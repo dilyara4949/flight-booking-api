@@ -59,6 +59,13 @@ func (s userServiceMock) ResetPassword(ctx context.Context, req request.ResetPas
 	return nil
 }
 
+func (s userServiceMock) DeleteUser(ctx context.Context, id uuid.UUID) error {
+	return nil
+}
+func (s userServiceMock) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
+	return domain.User{}, nil
+}
+
 func TestSignupHandler(t *testing.T) {
 	tests := map[string]struct {
 		body         string
