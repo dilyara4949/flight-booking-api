@@ -16,7 +16,7 @@ type TicketService interface {
 	GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error)
 }
 
-func GetAllTickets(service TicketService) gin.HandlerFunc {
+func GetTickets(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		userID, err := uuid.Parse(c.GetString(middleware.UserIDKey))
 		if err != nil {
