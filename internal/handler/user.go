@@ -122,6 +122,16 @@ func DeleteUserHandler(userService UserService) gin.HandlerFunc {
 	}
 }
 
+func domainUserToResponse(user domain.User) response.User {
+	return response.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+}
+
 func domainUsersToResponse(users []domain.User) []response.User {
 	res := make([]response.User, 0)
 
