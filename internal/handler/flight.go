@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"strconv"
 
 	"log/slog"
 	"net/http"
@@ -14,9 +15,36 @@ import (
 	"github.com/google/uuid"
 )
 
+const availableDefault = false
+
 type FlightService interface {
+	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
 	Create(ctx context.Context, flight request.CreateFlight) (domain.Flight, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+}
+
+func GetFlightHandler(service FlightService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		flightID, err := uuid.Parse(c.Param("flightId"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+
+			return
+		}
+
+		available, err := strconv.ParseBool(c.Query("available"))
+		if err != nil {
+			available = availableDefault
+		}
+
+		flight, err := service.Get(c, flightID, available)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+
+			return
+		}
+		c.JSON(http.StatusOK, flight)
+	}
 }
 
 func CreateFlightHandler(service FlightService) gin.HandlerFunc {

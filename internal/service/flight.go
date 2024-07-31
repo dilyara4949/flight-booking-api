@@ -32,6 +32,10 @@ func (service *Flight) Create(ctx context.Context, req request.CreateFlight) (do
 
 }
 
+func (service *Flight) Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error) {
+	return service.repo.Get(ctx, id, available)
+}
+
 func (service *Flight) Delete(ctx context.Context, id uuid.UUID) error {
 	return service.repo.Delete(ctx, id)
 }
