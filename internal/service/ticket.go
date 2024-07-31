@@ -18,6 +18,10 @@ func NewTicketService(repo repository.TicketRepository) *Ticket {
 	return &Ticket{repo: repo}
 }
 
+func (service *Ticket) Delete(ctx context.Context, ticketID, userID uuid.UUID) error {
+	return service.repo.Delete(ctx, ticketID, userID)
+}
+
 func (service *Ticket) Get(ctx context.Context, ticketID, userID uuid.UUID) (domain.Ticket, error) {
 	ticket := domain.Ticket{
 		ID:     ticketID,
