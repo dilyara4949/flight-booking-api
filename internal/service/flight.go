@@ -29,7 +29,6 @@ func (service *Flight) Create(ctx context.Context, req request.CreateFlight) (do
 	}
 
 	return service.repo.Create(ctx, flight)
-
 }
 
 func (service *Flight) Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error) {
