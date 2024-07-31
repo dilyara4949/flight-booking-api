@@ -226,6 +226,13 @@ paths:
 
   /admin/flights:
     get:
+      parameters:
+        - in: query
+          required: false
+          name: available
+          schema:
+            type: boolean
+          description: specifies to get only available flights or all possible
       description: "Get all flights"
       tags:
         - flights
@@ -303,6 +310,12 @@ paths:
         - flights
       security:
         - BearerAuth: [ ]
+      parameters:
+        - name: available
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: "OK"
@@ -601,12 +614,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: "User not found"
           content:
             application/json:
               schema:

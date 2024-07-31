@@ -9,11 +9,18 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewAPI(cfg config.Config, database *gorm.DB, authService AuthService, userService UserService, flightService FlightService) *gin.Engine {
-	router := gin.Default()
+func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
+	userRepo := repository.NewUserRepository(database)
+	authService := service.NewAuthService(userRepo)
+	userService := service.NewUserService(userRepo)
+
+	flightRepo := repository.NewFlightRepository(database)
+	flightService := service.NewFlightService(flightRepo)
 
 	ticketRepo := repository.NewTicketRepository(database)
 	ticketService := service.NewTicketService(ticketRepo)
+
+	router := gin.Default()
 
 	api := router.Group("/api")
 	{
@@ -25,25 +32,36 @@ func NewAPI(cfg config.Config, database *gorm.DB, authService AuthService, userS
 				auth.POST("/signin", SigninHandler(authService, userService, cfg))
 				auth.POST("/reset-password", ResetPasswordHandler(userService))
 			}
-			users := v1.Group("/users").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+			users := v1.Group("/users")
 			{
-				users.DELETE("/:userId", DeleteUserHandler(userService))
+				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.DELETE("/:userId", DeleteUserHandler(userService))
+					private.GET("/:userId", GetUserHandler(userService))
+				}
 			}
 
 			flights := v1.Group("/flights")
 			{
+				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/:flightId", GetFlightHandler(flightService))
+					private.GET("/", GetFlights(flightService))
+				}
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
+					admin.POST("/", CreateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
 
-			tickets := v1.Group("/users/tickets")
+			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 			{
-				private := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
-				{
-					private.POST("/", BookTicketHandler(ticketService, flightService))
-				}
+				tickets.POST("/", BookTicketHandler(ticketService, flightService))
+				tickets.GET("/", GetTickets(ticketService))
+				tickets.GET(":ticketId", GetTicketHandler(ticketService))
+				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
+				tickets.DELETE("/:ticketId", DeleteTicketHandler(ticketService))
 			}
 		}
 	}
