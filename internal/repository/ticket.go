@@ -17,7 +17,7 @@ func NewTicketRepository(db *gorm.DB) TicketRepository {
 	return TicketRepository{db: db}
 }
 
-func (repo *TicketRepository) GetAll(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
+func (repo *TicketRepository) GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
 	tickets := make([]domain.Ticket, 0)
 
 	offset := (page - 1) * pageSize

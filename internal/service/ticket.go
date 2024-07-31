@@ -16,6 +16,6 @@ func NewTicketService(repo repository.TicketRepository) *Ticket {
 	return &Ticket{repo: repo}
 }
 
-func (service *Ticket) GetAll(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
-	return service.repo.GetAll(ctx, userID, page, pageSize)
+func (service *Ticket) GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error) {
+	return service.repo.GetTickets(ctx, userID, page, pageSize)
 }

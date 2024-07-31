@@ -13,7 +13,7 @@ import (
 )
 
 type TicketService interface {
-	GetAll(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error)
+	GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error)
 }
 
 func GetAllTickets(service TicketService) gin.HandlerFunc {
@@ -27,7 +27,7 @@ func GetAllTickets(service TicketService) gin.HandlerFunc {
 
 		page, pageSize := GetPageInfo(c)
 
-		tickets, err := service.GetAll(c, userID, page, pageSize)
+		tickets, err := service.GetTickets(c, userID, page, pageSize)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
 			return
