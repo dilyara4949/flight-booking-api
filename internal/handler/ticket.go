@@ -13,6 +13,7 @@ import (
 )
 
 type TicketService interface {
+	GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error)
 	Update(ctx context.Context, ticketID, userID uuid.UUID, req request.UpdateTicket) (domain.Ticket, error)
 }
 
@@ -50,5 +51,29 @@ func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, ticket)
+	}
+}
+
+func GetTickets(service TicketService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+
+		userID, err := uuid.Parse(c.Param(userIDParamKey))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "user id is not correct"})
+			return
+		}
+
+		page, pageSize := GetPageInfo(c)
+
+		tickets, err := service.GetTickets(c, userID, page, pageSize)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, tickets)
 	}
 }

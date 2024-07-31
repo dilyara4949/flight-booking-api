@@ -58,6 +58,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 			{
 				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
+				tickets.GET("/", GetTickets(ticketService))
 			}
 		}
 	}
