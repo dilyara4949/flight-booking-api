@@ -230,6 +230,13 @@ paths:
 
   /admin/flights:
     get:
+      parameters:
+        - in: query
+          required: false
+          name: available
+          schema:
+            type: boolean
+          description: specifies to get only available flights or all possible
       description: "Get all flights"
       tags:
         - flights
