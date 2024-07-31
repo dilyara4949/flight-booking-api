@@ -2,8 +2,11 @@ package service
 
 import (
 	"context"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 )
 
@@ -26,4 +29,15 @@ func (service *Ticket) Get(ctx context.Context, ticketID, userID uuid.UUID) (dom
 		return domain.Ticket{}, err
 	}
 	return ticket, nil
+}
+
+func (service *Ticket) Update(ctx context.Context, ticketID, userID uuid.UUID, req request.UpdateTicket) (domain.Ticket, error) {
+	ticket, err := service.Get(ctx, ticketID, userID)
+	if err != nil {
+		return domain.Ticket{}, errs.ErrTicketNotFound
+	}
+
+	ticket.Price = req.Price
+
+	return service.repo.Update(ctx, ticket)
 }
