@@ -24,6 +24,11 @@ type TicketService interface {
 
 func BookTicketHandler(ticketService TicketService, flightService FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+
 		var req request.BookTicket
 
 		if err := c.ShouldBind(&req); err != nil {
@@ -39,10 +44,9 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 			return
 		}
 
-		userID, err := uuid.Parse(c.GetString("user_id"))
+		userID, err := uuid.Parse(c.Param(userIDParamKey))
 		if err != nil {
-			slog.Error("user id format is not correct at jwt", "error", err.Error())
-			c.JSON(http.StatusBadRequest, response.Error{Error: "user token set incorrectly"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "id is not correct"})
 			return
 		}
 
