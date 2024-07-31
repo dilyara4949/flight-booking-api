@@ -29,6 +29,10 @@ func NewAPI(cfg config.Config, authService AuthService, userService UserService,
 			}
 			flights := v1.Group("/flights")
 			{
+				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/:flightId", GetFlightHandler(flightService))
+				}
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
