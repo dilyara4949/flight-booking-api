@@ -1,6 +1,6 @@
 openapi: "3.0.0"
 servers:
-  - url: localhost:8080/api
+  - url: localhost:8080/v1
 info:
   title: "Flight Booking API Documentation"
   version: "1.0.0"
@@ -145,7 +145,7 @@ components:
           type: string
         updated_at:
           type: string
-    UpdateUserRequest:
+    UpdateUser:
       type: object
       required:
         - email
@@ -472,7 +472,7 @@ paths:
         schema:
           type: string
     put:
-      description: "Update user but userId"
+      description: "Update user by userId"
       tags:
         - users
       security:
@@ -482,7 +482,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
+              $ref: '#/components/schemas/UpdateUser'
 
       responses:
         '200':

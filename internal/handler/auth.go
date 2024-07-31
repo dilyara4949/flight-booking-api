@@ -122,7 +122,7 @@ func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool 
 	}
 
 	userID := req.Param(expectedIDKey)
-	if userRole == adminRole || expectedContextID == userID {
+	if userRole == adminRole || expectedContextID == userID && expectedContextID != "" {
 		return true
 	}
 
@@ -151,15 +151,5 @@ func ResetPasswordHandler(userService UserService) gin.HandlerFunc {
 		}
 
 		c.JSON(http.StatusOK, "password reset successful")
-	}
-}
-
-func domainUserToResponse(user domain.User) response.User {
-	return response.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Phone:     user.Phone,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
 	}
 }

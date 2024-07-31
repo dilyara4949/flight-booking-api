@@ -36,6 +36,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			{
 				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
+					users.PUT("/:userId", UpdateUserHandler(userService))
 					private.DELETE("/:userId", DeleteUserHandler(userService))
 					private.GET("/:userId", GetUserHandler(userService))
 				}
