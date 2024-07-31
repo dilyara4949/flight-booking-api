@@ -19,6 +19,13 @@ func NewFlightRepository(db *gorm.DB) FlightRepository {
 	return FlightRepository{db: db}
 }
 
+func (repo *FlightRepository) Create(ctx context.Context, flight domain.Flight) (domain.Flight, error) {
+	if err := repo.db.WithContext(ctx).Create(&flight).Error; err != nil {
+		return domain.Flight{}, fmt.Errorf("create flight error: %w", err)
+	}
+	return flight, nil
+}
+
 func (repo *FlightRepository) Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error) {
 	flight := domain.Flight{}
 
@@ -54,4 +61,3 @@ func (repo *FlightRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	}
 	return nil
 }
-
