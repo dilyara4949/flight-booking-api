@@ -19,6 +19,23 @@ func NewFlightRepository(db *gorm.DB) FlightRepository {
 	return FlightRepository{db: db}
 }
 
+func (repo *FlightRepository) GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error) {
+	flights := make([]domain.Flight, 0)
+
+	offset := (page - 1) * pageSize
+
+	query := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset)
+
+	if available {
+		addDateFilter(query)
+	}
+
+	if err := query.Find(&flights).Error; err != nil {
+		return nil, fmt.Errorf("get all flights error: %w", err)
+	}
+	return flights, nil
+}
+
 func (repo *FlightRepository) Create(ctx context.Context, flight domain.Flight) (domain.Flight, error) {
 	if err := repo.db.WithContext(ctx).Create(&flight).Error; err != nil {
 		return domain.Flight{}, fmt.Errorf("create flight error: %w", err)
