@@ -2,7 +2,6 @@ package handler
 
 import (
 	"context"
-	"log/slog"
 	"net/http"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -19,6 +18,11 @@ type TicketService interface {
 
 func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+
 		var req request.UpdateTicket
 
 		err := c.ShouldBind(&req)
@@ -29,14 +33,13 @@ func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 
 		ticketID, err := uuid.Parse(c.Param("ticketId"))
 		if err != nil {
-			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "ticket id format is not correct"})
 			return
 		}
 
-		userID, err := uuid.Parse(c.GetString(middleware.UserIDKey))
+		userID, err := uuid.Parse(c.Param(userIDParamKey))
 		if err != nil {
-			slog.Error("user id format is not correct at jwt", "error", err.Error())
-			c.JSON(http.StatusBadRequest, response.Error{Error: "user token set incorrectly"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "user id is not correct"})
 			return
 		}
 
