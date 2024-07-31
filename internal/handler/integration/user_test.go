@@ -76,7 +76,7 @@ func TestUpdateUserHandler(t *testing.T) {
 			userID: "5a57c98d-87a0-436b-634622efbf4e",
 			role:   "user",
 			updateReq: request.UpdateUser{
-				Email: "invalid-email",
+				Email: "user@mail.ru",
 				Phone: "88888888888",
 			},
 			expectedStatus:  http.StatusBadRequest,
