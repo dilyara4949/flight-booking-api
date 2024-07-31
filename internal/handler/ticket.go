@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log/slog"
 	"context"
 	"net/http"
 
@@ -11,7 +10,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"golang.org/x/net/context"
 )
 
 type TicketService interface {
@@ -58,16 +56,20 @@ func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 
 func DeleteTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		ticketID, err := uuid.Parse(c.Param("ticketId"))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
 
-		userID, err := uuid.Parse(c.GetString(middleware.UserIDKey))
+		ticketID, err := uuid.Parse(c.Param("ticketId"))
 		if err != nil {
-			slog.Error("user id format is not correct at jwt", "error", err.Error())
-			c.JSON(http.StatusBadRequest, response.Error{Error: "user token set incorrectly"})
+			c.JSON(http.StatusBadRequest, response.Error{Error: "ticket id format is not correct"})
+			return
+		}
+
+		userID, err := uuid.Parse(c.Param(userIDParamKey))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "user id is not correct"})
 			return
 		}
 
