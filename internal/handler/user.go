@@ -24,7 +24,7 @@ const userIDParamKey = "userId"
 
 func GetUserHandler(service UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString("user_id"), userIDParamKey) {
+		if !AccessCheck(c, c.GetString("user_id"), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -47,7 +47,7 @@ func GetUserHandler(service UserService) gin.HandlerFunc {
 
 func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString("user_id"), userIDParamKey) {
+		if !AccessCheck(c, c.GetString("user_id"), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -61,7 +61,7 @@ func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 		}
 
 		if req.Role != "" {
-			if !AccessCheck(*c, "", userIDParamKey) {
+			if !AccessCheck(c, "", userIDParamKey) {
 				c.JSON(http.StatusForbidden, response.Error{Error: "access denied: not possible to change role"})
 				return
 			}
@@ -96,7 +96,7 @@ func domainUserToResponse(user domain.User) response.User {
 
 func DeleteUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString("user_id"), "userId") {
+		if !AccessCheck(c, c.GetString("user_id"), "userId") {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}

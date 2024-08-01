@@ -8,7 +8,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/dilyara4949/flight-booking-api/internal/repository/errors"
-	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -79,7 +78,7 @@ func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (d
 func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
 	user, err := service.Get(ctx, userID)
 	if err != nil {
-		return domain.User{}, errs.ErrUserNotFound
+		return domain.User{}, errors.ErrUserNotFound
 	}
 
 	if req.Phone != "" {

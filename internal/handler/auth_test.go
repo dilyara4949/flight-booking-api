@@ -1,4 +1,4 @@
-package handler
+package handler_test
 
 import (
 	"context"
@@ -11,17 +11,13 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	"github.com/dilyara4949/flight-booking-api/internal/handler"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-
-	"github.com/dilyara4949/flight-booking-api/internal/config"
-	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
-)
-
-const (
-	userRole = "user"
 )
 
 type authServiceMock struct {
@@ -34,50 +30,53 @@ type userServiceMock struct {
 	err  error
 }
 
-func (s authServiceMock) CreateAccessToken(ctx context.Context, user domain.User, secret string, expiry int) (string, error) {
+type testCase struct {
+	body         string
+	userService  userServiceMock
+	authService  authServiceMock
+	expectedCode int
+	expectedBody string
+}
+
+func (s authServiceMock) CreateAccessToken(_ context.Context, _ domain.User, _ string, _ int) (string, error) {
 	if s.err != nil {
 		return "", s.err
 	}
 	return s.token, nil
 }
 
-func (s userServiceMock) CreateUser(ctx context.Context, signup request.Signup, password string) (domain.User, error) {
+func (s userServiceMock) CreateUser(_ context.Context, _ request.Signup, _ string) (domain.User, error) {
 	if s.err != nil {
 		return domain.User{}, s.err
 	}
 	return s.user, nil
 }
 
-func (s userServiceMock) ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error) {
+func (s userServiceMock) ValidateUser(_ context.Context, _ request.Signin) (domain.User, error) {
 	if s.err != nil {
 		return domain.User{}, s.err
 	}
 	return s.user, nil
 }
 
-func (s userServiceMock) ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error {
+func (s userServiceMock) ResetPassword(_ context.Context, _ request.ResetPassword, _ bool) error {
 	return nil
 }
 
-func (s userServiceMock) DeleteUser(ctx context.Context, id uuid.UUID) error {
+func (s userServiceMock) DeleteUser(_ context.Context, _ uuid.UUID) error {
 	return nil
 }
-func (s userServiceMock) Get(ctx context.Context, id uuid.UUID) (domain.User, error) {
+
+func (s userServiceMock) Get(_ context.Context, _ uuid.UUID) (domain.User, error) {
 	return domain.User{}, nil
 }
 
-func (s userServiceMock) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
+func (s userServiceMock) UpdateUser(_ context.Context, _ request.UpdateUser, _ uuid.UUID) (domain.User, error) {
 	return domain.User{}, nil
 }
 
 func TestSignupHandler(t *testing.T) {
-	tests := map[string]struct {
-		body         string
-		userService  userServiceMock
-		authService  authServiceMock
-		expectedCode int
-		expectedBody string
-	}{
+	tests := map[string]testCase{
 		"OK": {
 			body: `{
 				"email": "test@example.com",
@@ -95,7 +94,12 @@ func TestSignupHandler(t *testing.T) {
 				token: "token123",
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: `{"access_token":"token123","user":{"id":"%s","email":"test@example.com","phone":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}`,
+			expectedBody: `{"access_token":"token123",
+							"user":{"id":"%s",
+							"email":"test@example.com",
+							"phone":"",
+							"created_at":"0001-01-01T00:00:00Z",
+							"updated_at":"0001-01-01T00:00:00Z"}}`,
 		},
 		"invalid request body": {
 			body:         `{}`,
@@ -142,7 +146,7 @@ func TestSignupHandler(t *testing.T) {
 				AccessTokenExpire: 3600,
 			}
 
-			r.POST("/signup", SignupHandler(tt.authService, tt.userService, cfg))
+			r.POST("/signup", handler.SignupHandler(tt.authService, tt.userService, cfg))
 
 			req, err := http.NewRequest(http.MethodPost, "/signup", strings.NewReader(tt.body))
 			if err != nil {
@@ -165,35 +169,37 @@ func TestSignupHandler(t *testing.T) {
 			defer resp.Body.Close()
 
 			if tt.expectedCode == http.StatusOK {
-				expectedBody := strings.Replace(tt.expectedBody, "%s", tt.userService.user.ID.String(), 1)
-				var expected, actual map[string]interface{}
-				if err = json.Unmarshal([]byte(expectedBody), &expected); err != nil {
-					t.Fatalf("couldn't unmarshal expected response: %v", err)
-				}
-				if err = json.Unmarshal(body, &actual); err != nil {
-					t.Fatalf("couldn't unmarshal actual response: %v", err)
-				}
-
-				if !reflect.DeepEqual(expected, actual) {
-					t.Errorf("expected body %v, got %v", expected, actual)
-				}
+				tt.expectedBody = strings.Replace(tt.expectedBody, "%s", tt.userService.user.ID.String(), 1)
+				verifySuccessfulResponse(t, body, tt)
 			} else {
-				if string(body) != tt.expectedBody {
-					t.Errorf("expected body %s, got %s", tt.expectedBody, body)
-				}
+				verifyErrorResponse(t, body, tt.expectedBody)
 			}
 		})
 	}
 }
 
+func verifySuccessfulResponse(t *testing.T, body []byte, tt testCase) {
+	var expected, actual map[string]interface{}
+	if err := json.Unmarshal([]byte(tt.expectedBody), &expected); err != nil {
+		t.Fatalf("couldn't unmarshal expected response: %v", err)
+	}
+	if err := json.Unmarshal(body, &actual); err != nil {
+		t.Fatalf("couldn't unmarshal actual response: %v", err)
+	}
+
+	if !reflect.DeepEqual(expected, actual) {
+		t.Errorf("expected body %v, got %v", expected, actual)
+	}
+}
+
+func verifyErrorResponse(t *testing.T, body []byte, expectedBody string) {
+	if string(body) != expectedBody {
+		t.Errorf("expected body %s, got %s", expectedBody, body)
+	}
+}
+
 func TestSigninHandler(t *testing.T) {
-	tests := map[string]struct {
-		body         string
-		userService  userServiceMock
-		authService  authServiceMock
-		expectedCode int
-		expectedBody string
-	}{
+	tests := map[string]testCase{
 		"OK": {
 			body: `{
 				"email": "test@example.com",
@@ -257,7 +263,7 @@ func TestSigninHandler(t *testing.T) {
 				AccessTokenExpire: 3600,
 			}
 
-			r.POST("/signin", SigninHandler(tt.authService, tt.userService, cfg))
+			r.POST("/signin", handler.SigninHandler(tt.authService, tt.userService, cfg))
 
 			req, err := http.NewRequest(http.MethodPost, "/signin", strings.NewReader(tt.body))
 			if err != nil {
@@ -280,21 +286,9 @@ func TestSigninHandler(t *testing.T) {
 			defer resp.Body.Close()
 
 			if tt.expectedCode == http.StatusOK {
-				var expected, actual map[string]interface{}
-				if err = json.Unmarshal([]byte(tt.expectedBody), &expected); err != nil {
-					t.Fatalf("couldn't unmarshal expected response: %v", err)
-				}
-				if err = json.Unmarshal(body, &actual); err != nil {
-					t.Fatalf("couldn't unmarshal actual response: %v", err)
-				}
-
-				if !reflect.DeepEqual(expected, actual) {
-					t.Errorf("expected body %v, got %v", expected, actual)
-				}
+				verifySuccessfulResponse(t, body, tt)
 			} else {
-				if string(body) != tt.expectedBody {
-					t.Errorf("expected body %s, got %s", tt.expectedBody, body)
-				}
+				verifyErrorResponse(t, body, tt.expectedBody)
 			}
 		})
 	}
@@ -309,21 +303,21 @@ func TestAccessCheck(t *testing.T) {
 		expectedResult    bool
 	}{
 		"admin role": {
-			role:              adminRole,
+			role:              handler.AdminRole,
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "2",
 			expectedResult:    true,
 		},
 		"user role, same IDs": {
-			role:              userRole,
+			role:              handler.UserRole,
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "1",
 			expectedResult:    true,
 		},
 		"user role, not same IDs": {
-			role:              userRole,
+			role:              handler.UserRole,
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "2",
@@ -343,7 +337,7 @@ func TestAccessCheck(t *testing.T) {
 			expectedResult:    false,
 		},
 		"expectedContextID is empty": {
-			role:              userRole,
+			role:              handler.UserRole,
 			expectedContextID: "",
 			expectedResult:    false,
 		},
@@ -361,7 +355,7 @@ func TestAccessCheck(t *testing.T) {
 				{Key: tt.expectedIDKey, Value: tt.paramValue},
 			}
 
-			result := AccessCheck(*ctx, tt.expectedContextID, tt.expectedIDKey)
+			result := handler.AccessCheck(ctx, tt.expectedContextID, tt.expectedIDKey)
 			if tt.expectedResult != result {
 				t.Errorf("expected %v, got %v", tt.expectedResult, result)
 			}
