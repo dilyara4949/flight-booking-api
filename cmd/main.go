@@ -6,8 +6,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
-	"github.com/dilyara4949/flight-booking-api/internal/repository"
-	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"log/slog"
 	"net"
 	"net/http"
@@ -19,7 +17,7 @@ import (
 func main() {
 	cfg, err := config.NewConfig()
 	if err != nil {
-		slog.Error("error getting config: %w", err)
+		slog.Error("error getting config:", "error", err.Error())
 		return
 	}
 
@@ -28,18 +26,11 @@ func main() {
 
 	database, err := postgres.Connect(ctx, cfg.Postgres)
 	if err != nil {
-		slog.Error("database connection failed:", err)
+		slog.Error("database connection failed:", "error", err.Error())
 		return
 	}
 
-	userRepo := repository.NewUserRepository(database)
-	authService := service.NewAuthService(userRepo)
-	userService := service.NewUserService(userRepo)
-
-	flightRepo := repository.NewFlightRepository(database)
-	flightService := service.NewFlightService(flightRepo)
-
-	apiHandler := handler.NewAPI(cfg, authService, userService, flightService)
+	apiHandler := handler.NewAPI(cfg, database)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
