@@ -61,7 +61,7 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 		flight, err := service.Get(c, flightID, available)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			c.JSON(http.StatusNotFound, response.Error{Error: err.Error()})
 
 			return
 		}
