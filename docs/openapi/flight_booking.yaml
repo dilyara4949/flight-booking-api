@@ -67,31 +67,49 @@ components:
           type: string
         creation_date:
           type: string
-        ticket_prices:
-          type: array
-          items:
-            $ref: '#/components/schemas/FlightPrice'
-
+        rank:
+          type: string
+        price:
+          type: integer
+        totat_tickets:
+          type: integer
+        created_at:
+          type: string
+        updated_at:
+          type: string
+    FlightRequest:
+      type: object
+      required:
+        - start_date
+        - end_date
+        - departure
+        - destination
+      properties:
+        id:
+          type: string
+        start_date:
+          type: string
+        end_date:
+          type: string
+        departure:
+          type: string
+        destination:
+          type: string
+        creation_date:
+          type: string
+        rank:
+          type: string
+        price:
+          type: integer
+        totat_tickets:
+          type: integer
     Rank:
       type: object
       properties:
+        id:
+          type: string
         name:
           type: string
-
-    FlightPrice:
-      type: object
-      required:
-        - rank
-        - price
-      properties:
-        flight_id:
-          type: string
-          description: reference to flight id
-        rank:
-          type: string
-          description: reference to ticket rank name
-        price:
-          type: integer
 
     Ticket:
       type: object
@@ -109,6 +127,10 @@ components:
         user_id:
           type: string
           description: reference to user id
+        created_at:
+          type: string
+        updated_at:
+          type: string
 
     BookTicket:
       type: object
@@ -119,17 +141,13 @@ components:
         flight_id:
           type: string
           description: reference to flight id
-        rank:
-          type: string
-          description: reference to rank enum
     UpdateTicket:
       type: object
       required:
-        - rank
+        - price
       properties:
-        rank:
-          description: reference to rank enum
-          type: string
+        price:
+          type: integer
 
 
     User:
@@ -147,19 +165,18 @@ components:
           type: string
     UpdateUser:
       type: object
-      required:
-        - email
-        - phone
       properties:
         email:
           type: string
         phone:
           type: string
+        role:
+          type: string
 
     ErrorResponse:
       type: object
       properties:
-        message:
+        error:
           type: string
 
 security:
@@ -221,6 +238,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: "User not found"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: "Server error"
           content:
@@ -228,7 +257,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /admin/flights:
+  /flights:
     get:
       parameters:
         - in: query
@@ -237,7 +266,19 @@ paths:
           schema:
             type: boolean
           description: specifies to get only available flights or all possible
-      description: "Get all flights"
+        - in: query
+          required: false
+          name: page
+          schema:
+            type: integer
+          description: specifies the page number
+        - in: query
+          required: false
+          name: page_size
+          schema:
+            type: integer
+          description: specifies the number of flights per page
+      description: "Get list of flights"
       tags:
         - flights
       security:
@@ -274,10 +315,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Flight'
+              $ref: '#/components/schemas/FlightRequest'
       responses:
-        '201':
-          description: "Created"
+        '200':
+          description: "OK"
           content:
             application/json:
               schema:
@@ -301,7 +342,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /admin/flights/{flightId}:
+  /flights/{flightId}:
     parameters:
       - name: flightId
         in: path
@@ -362,7 +403,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Flight'
+              $ref: '#/components/schemas/FlightRequest'
       responses:
         '200':
           description: "OK"
@@ -416,12 +457,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: "Flight not found"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: "Server error"
           content:
@@ -431,7 +466,7 @@ paths:
 
   /users:
     get:
-      description: "Get all users"
+      description: "Get list of users"
       tags:
         - users
       security:
@@ -503,6 +538,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: "User not found"
           content:
@@ -537,6 +578,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: "User not found"
           content:
@@ -550,7 +597,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /users/tickets:
+  /users/{userId}/tickets:
+    parameters:
+      - name: userId
+        in: path
+        required: true
+        schema:
+          type: string
     post:
       description: "Book a ticket"
       tags:
@@ -582,8 +635,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
-          description: "Flight not found or unavailable"
+          description: "tickets out of stock"
           content:
             application/json:
               schema:
@@ -596,7 +655,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
     get:
-      description: "Get all tickets of the user"
+      description: "Get list of tickets of the user"
       tags:
         - tickets
       security:
@@ -622,6 +681,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: "Server error"
           content:
@@ -630,9 +695,14 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
 
 
-  /users/tickets/{ticketId}:
+  /users/{userId}/tickets/{ticketId}:
     parameters:
       - name: ticketId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: userId
         in: path
         required: true
         schema:
@@ -658,6 +728,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
           content:
             application/json:
               schema:
@@ -705,6 +781,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: "Ticket not found"
           content:
@@ -734,6 +816,12 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '401':
           description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: "Access denied"
           content:
             application/json:
               schema:
