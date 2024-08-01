@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type CreateFlight struct {
+type Flight struct {
 	StartDate    time.Time `json:"start_date"`
 	EndDate      time.Time `json:"end_date"`
 	Departure    string    `json:"departure"`
@@ -15,7 +15,7 @@ type CreateFlight struct {
 	TotalTickets int       `json:"total_tickets"`
 }
 
-func (f CreateFlight) Validate() error {
+func (f Flight) Validate() error {
 	var err error
 	if f.StartDate.IsZero() {
 		err = errors.Join(err, errors.New("start_date cannot be empty"))
@@ -44,14 +44,4 @@ func (f CreateFlight) Validate() error {
 		err = errors.Join(err, errors.New("price cannot be empty"))
 	}
 	return err
-}
-
-type UpdateFlight struct {
-	StartDate    time.Time `gorm:"not null"                             json:"start_date"`
-	EndDate      time.Time `gorm:"not null"                             json:"end_date"`
-	Departure    string    `gorm:"not null"                             json:"departure"`
-	Destination  string    `gorm:"not null"                             json:"destination"`
-	Rank         string    `gorm:"type:uuid"                            json:"rank"`
-	Price        int64     `gorm:"not null"                             json:"price"`
-	TotalTickets int       `gorm:"not null"                             json:"total_tickets"`
 }

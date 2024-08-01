@@ -5,6 +5,7 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +21,7 @@ func (service *Flight) GetFlights(ctx context.Context, page, pageSize int, avail
 	return service.repo.GetFlights(ctx, page, pageSize, available)
 }
 
-func (service *Flight) Create(ctx context.Context, req request.CreateFlight) (domain.Flight, error) {
+func (service *Flight) Create(ctx context.Context, req request.Flight) (domain.Flight, error) {
 	flight := domain.Flight{
 		ID:           uuid.New(),
 		StartDate:    req.StartDate,
@@ -43,17 +44,32 @@ func (service *Flight) Delete(ctx context.Context, id uuid.UUID) error {
 	return service.repo.Delete(ctx, id)
 }
 
-func (service *Flight) Update(ctx context.Context, req request.UpdateFlight, id uuid.UUID) (domain.Flight, error) {
-	flight := domain.Flight{
-		ID:           id,
-		StartDate:    req.StartDate,
-		EndDate:      req.EndDate,
-		Departure:    req.Departure,
-		Destination:  req.Destination,
-		Rank:         req.Rank,
-		Price:        req.Price,
-		TotalTickets: req.TotalTickets,
+func (service *Flight) Update(ctx context.Context, req request.Flight, id uuid.UUID) (domain.Flight, error) {
+	flight, err := service.Get(ctx, id, false)
+	if err != nil {
+		return domain.Flight{}, errs.ErrFlightNotFound
 	}
-	return service.repo.Update(ctx, flight)
-}
 
+	if !req.StartDate.IsZero() {
+		flight.StartDate = req.StartDate
+	}
+	if !req.EndDate.IsZero() {
+		flight.EndDate = req.EndDate
+	}
+	if req.Departure != "" {
+		flight.Departure = req.Departure
+	}
+	if req.Destination != "" {
+		flight.Destination = req.Destination
+	}
+	if req.Rank != "" {
+		flight.Rank = req.Rank
+	}
+	if req.Price != 0 {
+		flight.Price = req.Price
+	}
+	if req.TotalTickets != 0 {
+		flight.TotalTickets = req.TotalTickets
+	}
+	return service.repo.Update(ctx, *flight)
+}

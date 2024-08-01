@@ -16,9 +16,9 @@ import (
 type FlightService interface {
 	GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
 	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
-	Create(ctx context.Context, flight request.CreateFlight) (domain.Flight, error)
+	Create(ctx context.Context, flight request.Flight) (domain.Flight, error)
 	Delete(ctx context.Context, id uuid.UUID) error
-	Update(ctx context.Context, flight request.UpdateFlight, id uuid.UUID) (domain.Flight, error)
+	Update(ctx context.Context, flight request.Flight, id uuid.UUID) (domain.Flight, error)
 }
 
 const (
@@ -71,7 +71,7 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req request.CreateFlight
+		var req request.Flight
 
 		err := c.ShouldBind(&req)
 		if err != nil {
@@ -120,7 +120,7 @@ func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
 
 func UpdateFlightHandler(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req request.UpdateFlight
+		var req request.Flight
 
 		err := c.ShouldBind(&req)
 		if err != nil {
@@ -128,13 +128,6 @@ func UpdateFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 
-		if req.StartDate.IsZero() || req.EndDate.IsZero() ||
-			req.Departure == "" || req.Destination == "" ||
-			req.Rank == "" || req.TotalTickets == 0 || req.Price == 0 {
-			c.JSON(http.StatusBadRequest, response.Error{Error: "request fields cannot be empty"})
-
-			return
-		}
 		flightID, err := uuid.Parse(c.Param("flightId"))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
