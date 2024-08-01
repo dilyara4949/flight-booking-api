@@ -64,7 +64,7 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 		}
 
 		if !available {
-			c.JSON(http.StatusInternalServerError, response.Error{Error: "tickets aut of stock"})
+			c.JSON(http.StatusNotFound, response.Error{Error: "tickets aut of stock"})
 			return
 		}
 
