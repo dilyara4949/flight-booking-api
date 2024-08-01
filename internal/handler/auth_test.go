@@ -75,6 +75,10 @@ func (s userServiceMock) UpdateUser(_ context.Context, _ request.UpdateUser, _ u
 	return domain.User{}, nil
 }
 
+func (s userServiceMock) GetUsers(ctx context.Context, page int, pageSize int) ([]domain.User, error) {
+	return nil, nil
+}
+
 func TestSignupHandler(t *testing.T) {
 	tests := map[string]testCase{
 		"OK": {
