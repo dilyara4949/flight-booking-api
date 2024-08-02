@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
+	"github.com/dilyara4949/flight-booking-api/internal/database/redis"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
 	"log/slog"
 	"net"
@@ -30,7 +31,12 @@ func main() {
 		return
 	}
 
-	apiHandler := handler.NewAPI(cfg, database)
+	cache, err := redis.Connect(ctx, cfg.Redis)
+	if err != nil {
+		slog.Error("redis connection failed", "error", err.Error())
+	}
+
+	apiHandler := handler.NewAPI(cfg, database, cache)
 
 	httpServer := &http.Server{
 		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),

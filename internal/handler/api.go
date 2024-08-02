@@ -6,10 +6,12 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
+	"time"
 )
 
-func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
+func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engine {
 	userRepo := repository.NewUserRepository(database)
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
@@ -34,21 +36,21 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(adminRole))
-				{
-					admin.GET("/", GetUsersHandler(userService))
-				}
-				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.Ttl)*time.Minute))
 				{
 					users.PUT("/:userId", UpdateUserHandler(userService))
 					private.DELETE("/:userId", DeleteUserHandler(userService))
 					private.GET("/:userId", GetUserHandler(userService))
 				}
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
+				{
+					admin.GET("/", GetUsersHandler(userService))
+				}
 			}
 
 			flights := v1.Group("/flights")
 			{
-				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.Ttl)*time.Minute))
 				{
 					private.GET("/:flightId", GetFlightHandler(flightService))
 					private.GET("/", GetFlights(flightService))
