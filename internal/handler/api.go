@@ -55,13 +55,19 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 				}
 			}
 
-			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+			tickets := v1.Group("/users/:userId/tickets")
 			{
-				tickets.POST("/", BookTicketHandler(ticketService, flightService))
-				tickets.GET("/", GetTickets(ticketService))
-				tickets.GET(":ticketId", GetTicketHandler(ticketService))
-				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
-				tickets.DELETE("/:ticketId", DeleteTicketHandler(ticketService))
+				private := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/", GetTickets(ticketService))
+					private.GET(":ticketId", GetTicketHandler(ticketService))
+					private.PUT("/:ticketId", UpdateTicketHandler(ticketService))
+					private.DELETE("/:ticketId", DeleteTicketHandler(ticketService))
+				}
+				user := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("user"))
+				{
+					user.POST("/", BookTicketHandler(ticketService, flightService))
+				}
 			}
 		}
 	}
