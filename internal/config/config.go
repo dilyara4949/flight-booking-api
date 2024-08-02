@@ -31,7 +31,8 @@ type Redis struct {
 	Timeout  int
 	PoolSize int
 	Database int
-	Ttl      int
+	LongTtl  int
+	ShortTtl int
 }
 
 func NewConfig() (Config, error) {

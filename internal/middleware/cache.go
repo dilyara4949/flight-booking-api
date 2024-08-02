@@ -3,8 +3,10 @@ package middleware
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/auth"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/response/pagination"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"log/slog"
@@ -20,29 +22,8 @@ func Cache(cache *redis.Client, ttl time.Duration) gin.HandlerFunc {
 			return
 		}
 
-		var id string
-		switch {
-		case strings.Contains(c.Request.URL.Path, "/flights/"):
-			flightID := c.Param("flightId")
-			if flightID == "" {
-				c.Next()
-				return
-			}
-			id = "flight-" + flightID
-		case strings.Contains(c.Request.URL.Path, "/users/"):
-			userID := c.Param("userId")
-			if userID == "" {
-				c.Next()
-				return
-			}
-
-			if !auth.AccessCheck(*c, c.GetString("user_id"), "userId") {
-				c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access deniedo"})
-				return
-			}
-
-			id = "user-" + userID
-		default:
+		id := getCacheKey(c)
+		if id == "" {
 			c.Next()
 			return
 		}
@@ -86,4 +67,33 @@ type bodyWriter struct {
 func (w bodyWriter) Write(b []byte) (int, error) {
 	w.body.Write(b)
 	return w.ResponseWriter.Write(b)
+}
+
+func getCacheKey(c *gin.Context) (id string) {
+	switch {
+	case strings.Contains(c.Request.URL.Path, "/flights/"):
+		flightID := c.Param("flightId")
+		if flightID == "" {
+			page, pageSize := pagination.GetPageInfo(c)
+
+			id = fmt.Sprintf("flights-page%d-size%d", page, pageSize)
+		} else {
+			id = "flight-" + flightID
+		}
+	case strings.Contains(c.Request.URL.Path, "/users/"):
+		userID := c.Param("userId")
+		if userID == "" {
+			page, pageSize := pagination.GetPageInfo(c)
+
+			id = fmt.Sprintf("users-page%d-size%d", page, pageSize)
+		} else {
+			id = "user-" + userID
+		}
+
+		if !auth.AccessCheck(*c, c.GetString("user_id"), "userId") {
+			c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access denied"})
+			return
+		}
+	}
+	return id
 }

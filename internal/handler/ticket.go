@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/auth"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/response/pagination"
 	"net/http"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
@@ -126,7 +127,7 @@ func GetTickets(service TicketService) gin.HandlerFunc {
 			return
 		}
 
-		page, pageSize := GetPageInfo(c)
+		page, pageSize := pagination.GetPageInfo(c)
 
 		tickets, err := service.GetTickets(c, userID, page, pageSize)
 		if err != nil {
