@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -97,12 +98,7 @@ func TestSignupHandler(t *testing.T) {
 				token: "token123",
 			},
 			expectedCode: http.StatusOK,
-			expectedBody: `{"access_token":"token123",
-							"user":{"id":"%s",
-							"email":"test@example.com",
-							"phone":"",
-							"created_at":"0001-01-01T00:00:00Z",
-							"updated_at":"0001-01-01T00:00:00Z"}}`,
+			expectedBody: `{"access_token":"token123","user":{"id":"%s","email":"test@example.com","phone":"","created_at":"0001-01-01T00:00:00Z","updated_at":"0001-01-01T00:00:00Z"}}`,
 		},
 		"invalid request body": {
 			body:         `{}`,
@@ -172,32 +168,31 @@ func TestSignupHandler(t *testing.T) {
 			defer resp.Body.Close()
 
 			if tt.expectedCode == http.StatusOK {
-				tt.expectedBody = strings.Replace(tt.expectedBody, "%s", tt.userService.user.ID.String(), 1)
-				verifySuccessfulResponse(t, body, tt)
-			} else {
-				verifyErrorResponse(t, body, tt.expectedBody)
+				tt.expectedBody = fmt.Sprintf(tt.expectedBody, tt.userService.user.ID.String())
 			}
+
+			verifyResponse(t, body, tt)
 		})
 	}
 }
 
-func verifySuccessfulResponse(t *testing.T, body []byte, tt testCase) {
-	var expected, actual map[string]interface{}
-	if err := json.Unmarshal([]byte(tt.expectedBody), &expected); err != nil {
-		t.Fatalf("couldn't unmarshal expected response: %v", err)
-	}
-	if err := json.Unmarshal(body, &actual); err != nil {
-		t.Fatalf("couldn't unmarshal actual response: %v", err)
-	}
+func verifyResponse(t *testing.T, body []byte, tt testCase) {
+	if tt.expectedCode == http.StatusOK {
+		var expected, actual map[string]interface{}
+		if err := json.Unmarshal([]byte(tt.expectedBody), &expected); err != nil {
+			t.Fatalf("couldn't unmarshal expected response: %v", err)
+		}
+		if err := json.Unmarshal(body, &actual); err != nil {
+			t.Fatalf("couldn't unmarshal actual response: %v", err)
+		}
 
-	if !reflect.DeepEqual(expected, actual) {
-		t.Errorf("expected body %v, got %v", expected, actual)
-	}
-}
-
-func verifyErrorResponse(t *testing.T, body []byte, expectedBody string) {
-	if string(body) != expectedBody {
-		t.Errorf("expected body %s, got %s", expectedBody, body)
+		if !reflect.DeepEqual(expected, actual) {
+			t.Errorf("expected body %v, got %v", expected, actual)
+		}
+	} else {
+		if string(body) != tt.expectedBody {
+			t.Errorf("expected body %s, got %s", tt.expectedBody, body)
+		}
 	}
 }
 
@@ -288,11 +283,7 @@ func TestSigninHandler(t *testing.T) {
 			}
 			defer resp.Body.Close()
 
-			if tt.expectedCode == http.StatusOK {
-				verifySuccessfulResponse(t, body, tt)
-			} else {
-				verifyErrorResponse(t, body, tt.expectedBody)
-			}
+			verifyResponse(t, body, tt)
 		})
 	}
 }
