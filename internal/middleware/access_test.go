@@ -1,11 +1,9 @@
-package middleware_test
+package middleware
 
 import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
-
-	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,11 +48,11 @@ func TestAccessCheck(t *testing.T) {
 
 			router.Use(func(c *gin.Context) {
 				if tt.role != "" {
-					c.Set(middleware.UserRoleKey, tt.role)
+					c.Set(UserRoleKey, tt.role)
 				}
 				c.Next()
 			})
-			router.Use(middleware.AccessCheck(tt.allowedRoles...))
+			router.Use(AccessCheck(tt.allowedRoles...))
 
 			router.GET("/", func(c *gin.Context) {
 				c.String(http.StatusOK, "success")

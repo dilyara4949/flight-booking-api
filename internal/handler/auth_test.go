@@ -1,4 +1,4 @@
-package handler_test
+package handler
 
 import (
 	"context"
@@ -13,7 +13,6 @@ import (
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"github.com/dilyara4949/flight-booking-api/internal/handler"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -150,7 +149,7 @@ func TestSignupHandler(t *testing.T) {
 				AccessTokenExpire: 3600,
 			}
 
-			r.POST("/signup", handler.SignupHandler(tt.authService, tt.userService, cfg))
+			r.POST("/signup", SignupHandler(tt.authService, tt.userService, cfg))
 
 			req, err := http.NewRequest(http.MethodPost, "/signup", strings.NewReader(tt.body))
 			if err != nil {
@@ -267,7 +266,7 @@ func TestSigninHandler(t *testing.T) {
 				AccessTokenExpire: 3600,
 			}
 
-			r.POST("/signin", handler.SigninHandler(tt.authService, tt.userService, cfg))
+			r.POST("/signin", SigninHandler(tt.authService, tt.userService, cfg))
 
 			req, err := http.NewRequest(http.MethodPost, "/signin", strings.NewReader(tt.body))
 			if err != nil {
@@ -307,21 +306,21 @@ func TestAccessCheck(t *testing.T) {
 		expectedResult    bool
 	}{
 		"admin role": {
-			role:              handler.AdminRole,
+			role:              AdminRole,
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "2",
 			expectedResult:    true,
 		},
 		"user role, same IDs": {
-			role:              handler.UserRole,
+			role:              UserRole,
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "1",
 			expectedResult:    true,
 		},
 		"user role, not same IDs": {
-			role:              handler.UserRole,
+			role:              UserRole,
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "2",
@@ -341,7 +340,7 @@ func TestAccessCheck(t *testing.T) {
 			expectedResult:    false,
 		},
 		"expectedContextID is empty": {
-			role:              handler.UserRole,
+			role:              UserRole,
 			expectedContextID: "",
 			expectedResult:    false,
 		},
@@ -359,7 +358,7 @@ func TestAccessCheck(t *testing.T) {
 				{Key: tt.expectedIDKey, Value: tt.paramValue},
 			}
 
-			result := handler.AccessCheck(ctx, tt.expectedContextID, tt.expectedIDKey)
+			result := AccessCheck(ctx, tt.expectedContextID, tt.expectedIDKey)
 			if tt.expectedResult != result {
 				t.Errorf("expected %v, got %v", tt.expectedResult, result)
 			}

@@ -34,7 +34,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(adminRole))
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
 					admin.GET("/", GetUsersHandler(userService))
 				}
