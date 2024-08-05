@@ -29,8 +29,8 @@ func (service *Flight) Create(ctx context.Context, req request.Flight) (domain.F
 		Departure:    req.Departure,
 		Destination:  req.Destination,
 		Rank:         req.Rank,
-		Price:        req.Price,
-		TotalTickets: req.TotalTickets,
+		Price:        *req.Price,
+		TotalTickets: *req.TotalTickets,
 	}
 
 	return service.repo.Create(ctx, flight)
@@ -66,16 +66,16 @@ func (service *Flight) Update(ctx context.Context, req request.Flight, id uuid.U
 		flight.EndDate = req.EndDate
 	}
 
-	if req.TotalTickets != 0 {
-		flight.TotalTickets = req.TotalTickets
+	if req.TotalTickets != nil {
+		flight.TotalTickets = *req.TotalTickets
 	}
 
 	if req.Rank != "" {
 		flight.Rank = req.Rank
 	}
 
-	if req.Price != 0 {
-		flight.Price = req.Price
+	if req.Price != nil {
+		flight.Price = *req.Price
 	}
 
 	return service.repo.Update(ctx, *flight)

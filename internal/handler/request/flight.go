@@ -11,8 +11,8 @@ type Flight struct {
 	Departure    string    `json:"departure"`
 	Destination  string    `json:"destination"`
 	Rank         string    `json:"rank"`
-	Price        int64     `json:"price"`
-	TotalTickets int       `json:"total_tickets"`
+	Price        *int64    `json:"price,omitempty"`
+	TotalTickets *int      `json:"total_tickets,omitempty"`
 }
 
 func (f Flight) Validate() error {
@@ -36,11 +36,11 @@ func (f Flight) Validate() error {
 		err = errors.Join(err, errors.New("rank cannot be empty"))
 	}
 
-	if f.TotalTickets == 0 {
+	if f.TotalTickets == nil {
 		err = errors.Join(err, errors.New("total_tickets cannot be empty"))
 	}
 
-	if f.Price == 0 {
+	if f.Price == nil {
 		err = errors.Join(err, errors.New("price cannot be empty"))
 	}
 	return err
