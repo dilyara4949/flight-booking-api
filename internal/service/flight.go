@@ -45,13 +45,37 @@ func (service *Flight) Delete(ctx context.Context, id uuid.UUID) error {
 }
 
 func (service *Flight) Update(ctx context.Context, req request.Flight, id uuid.UUID) (domain.Flight, error) {
-	if err := req.Validate(); err != nil {
-		return domain.Flight{}, err
-	}
-
 	flight, err := service.Get(ctx, id, false)
 	if err != nil {
 		return domain.Flight{}, errs.ErrFlightNotFound
+	}
+
+	if req.Departure != "" {
+		flight.Departure = req.Departure
+	}
+
+	if req.Destination != "" {
+		flight.Destination = req.Destination
+	}
+
+	if !req.StartDate.IsZero() {
+		flight.StartDate = req.StartDate
+	}
+
+	if !req.EndDate.IsZero() {
+		flight.EndDate = req.EndDate
+	}
+
+	if req.TotalTickets != 0 {
+		flight.TotalTickets = req.TotalTickets
+	}
+
+	if req.Rank != "" {
+		flight.Rank = req.Rank
+	}
+
+	if req.Price != 0 {
+		flight.Price = req.Price
 	}
 
 	return service.repo.Update(ctx, *flight)
