@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
-	"log"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
@@ -63,8 +62,8 @@ func TestUpdateFlightHandler(t *testing.T) {
 				StartDate:    time.Date(2009, 11, 17, 20, 0, 0, 0, time.UTC),
 				EndDate:      time.Date(2009, 11, 17, 23, 0, 0, 0, time.UTC),
 				Rank:         "economy",
-				Price:        20000,
-				TotalTickets: 100,
+				Price:        int64Pointer(2000),
+				TotalTickets: intPointer(0),
 			},
 			expectedStatus: http.StatusOK,
 			expectedFlight: domain.Flight{
@@ -74,8 +73,8 @@ func TestUpdateFlightHandler(t *testing.T) {
 				StartDate:    time.Date(2009, 11, 17, 20, 0, 0, 0, time.UTC),
 				EndDate:      time.Date(2009, 11, 17, 23, 0, 0, 0, time.UTC),
 				Rank:         "economy",
-				Price:        20000,
-				TotalTickets: 100,
+				Price:        2000,
+				TotalTickets: 0,
 			},
 		},
 		"invalid flight ID format": {
@@ -87,14 +86,6 @@ func TestUpdateFlightHandler(t *testing.T) {
 			flightID:        "5a57c98d-87a0-436b-436b-034622efbf4e",
 			expectedStatus:  http.StatusBadRequest,
 			expectedMessage: "flight not found",
-		},
-		"binding error": {
-			flightID:  "5a57c98d-87a0-436b-a016-634622efbf4e",
-			updateReq: request.Flight{
-				// Leave fields empty or invalid to trigger binding error
-			},
-			expectedStatus:  http.StatusBadRequest,
-			expectedMessage: "error at binding request body",
 		},
 	}
 
@@ -133,19 +124,13 @@ func TestUpdateFlightHandler(t *testing.T) {
 				}
 			} else if !reflect.DeepEqual(tt.expectedFlight, domain.Flight{}) {
 				var resp domain.Flight
-				err := json.Unmarshal(w.Body.Bytes(), &resp)
+				err = json.Unmarshal(w.Body.Bytes(), &resp)
 				if err != nil {
 					t.Fatalf("error unmarshaling response: %v", err)
 				}
-				log.Println(resp.StartDate, tt.expectedFlight.StartDate)
-				log.Println(resp.EndDate, tt.expectedFlight.EndDate)
-
-				log.Println(resp.Destination, tt.expectedFlight.Destination)
 				if !compareFlights(resp, tt.expectedFlight) {
 					t.Errorf("expected flight %v, got %v", tt.expectedFlight, resp)
 				}
-				log.Println("00000000000", resp)
-
 			}
 		})
 	}
@@ -158,6 +143,14 @@ func compareFlights(f, p domain.Flight) bool {
 		f.Departure == p.Departure &&
 		f.Destination == p.Destination &&
 		f.Rank == p.Rank &&
-		f.Price == p.Price &&
-		f.TotalTickets == p.TotalTickets
+		reflect.DeepEqual(f.Price, p.Price) &&
+		reflect.DeepEqual(f.TotalTickets, p.TotalTickets)
+}
+
+func int64Pointer(i int64) *int64 {
+	return &i
+}
+
+func intPointer(i int) *int {
+	return &i
 }
