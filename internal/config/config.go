@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/vrischmann/envconfig"
 )
@@ -11,6 +12,7 @@ type Config struct {
 	AccessTokenExpire int
 	RestPort          string
 	Address           string
+	HeaderTimeout     time.Duration
 	Postgres
 }
 
