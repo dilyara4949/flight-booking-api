@@ -26,30 +26,11 @@ Create docker container for redis with following command:
 
 ### Configs
 
-Do not forget to set all needed configuration variables, for example:
+Do not forget to set all needed configuration variables:
 
 ```
-export JWT_TOKEN_SECRET=my_secret_key
-export REST_PORT=8080
-export ACCESS_TOKEN_EXPIRE=877
-export ADDRESS=0.0.0.0
-export HEADER_TIMEOUT=5s
-
-export POSTGRES_HOST=localhost
-export POSTGRES_PORT=5432
-export POSTGRES_USER=postgres
-export POSTGRES_PASSWORD=12345
-export POSTGRES_DB=postgres
-export POSTGRES_TIMEOUT=30
-export POSTGRES_MAX_CONNECTIONS=20
-
-export REDIS_HOST=localhost
-export REDIS_PORT=6379
-export REDIS_PASSWORD=12345
-export REDIS_TIMEOUT=10
-export REDIS_TTL=5
-export REDIS_DATABASE=0
-export REDIS_POOL_SIZE=10
+make export_env
+source export_env
 ```
 
 After initializing all the necessary dependencies, you can run project:
