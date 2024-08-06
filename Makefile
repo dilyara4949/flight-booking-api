@@ -9,7 +9,9 @@ run:
 
 create-migration:
 	@read -p "migration name: " name; \
-	migrate create -ext sql -dir internal/database/postgres/migration -seq $$name
+	timestamp=$$(date +%Y%m%d%H%M); \
+	touch internal/database/postgres/migration/$${timestamp}_$$name.up.sql; \
+	touch internal/database/postgres/migration/$${timestamp}_$$name.down.sql
 
 migrate-up:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration up
