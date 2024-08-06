@@ -50,12 +50,13 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			{
 				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
-					private.GET("/:flightId", GetFlightHandler(flightService))
 					private.GET("/", GetFlights(flightService))
+					private.GET("/:flightId", GetFlightHandler(flightService))
 				}
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
+					admin.PUT("/:flightId", UpdateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
