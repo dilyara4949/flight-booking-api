@@ -66,6 +66,14 @@ func (s userServiceMock) Get(ctx context.Context, id uuid.UUID) (domain.User, er
 	return domain.User{}, nil
 }
 
+func (s userServiceMock) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
+	return domain.User{}, nil
+}
+
+func (s userServiceMock) GetUsers(ctx context.Context, page int, pageSize int) ([]domain.User, error) {
+	return nil, nil
+}
+
 func TestSignupHandler(t *testing.T) {
 	tests := map[string]struct {
 		body         string
@@ -336,6 +344,11 @@ func TestAccessCheck(t *testing.T) {
 			expectedContextID: "1",
 			expectedIDKey:     "user_id",
 			paramValue:        "1",
+			expectedResult:    false,
+		},
+		"expectedContextID is empty": {
+			role:              userRole,
+			expectedContextID: "",
 			expectedResult:    false,
 		},
 	}

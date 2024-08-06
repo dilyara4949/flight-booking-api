@@ -14,10 +14,11 @@ import (
 )
 
 type FlightService interface {
-	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
 	GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
-	Create(ctx context.Context, flight request.CreateFlight) (domain.Flight, error)
+	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
+	Create(ctx context.Context, flight request.Flight) (domain.Flight, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, flight request.Flight, id uuid.UUID) (domain.Flight, error)
 }
 
 const (
@@ -70,7 +71,7 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req request.CreateFlight
+		var req request.Flight
 
 		err := c.ShouldBind(&req)
 		if err != nil {
@@ -114,5 +115,30 @@ func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusNoContent, nil)
+	}
+}
+
+func UpdateFlightHandler(service FlightService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req request.Flight
+
+		err := c.ShouldBind(&req)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "error at binding request body"})
+			return
+		}
+
+		flightID, err := uuid.Parse(c.Param("flightId"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+			return
+		}
+
+		flight, err := service.Update(c, req, flightID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, flight)
 	}
 }

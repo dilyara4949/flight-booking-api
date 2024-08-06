@@ -42,12 +42,12 @@ func (repo *UserRepository) Get(ctx context.Context, id uuid.UUID) (domain.User,
 	return user, nil
 }
 
-func (repo *UserRepository) Update(ctx context.Context, user domain.User) error {
+func (repo *UserRepository) Update(ctx context.Context, user domain.User) (domain.User, error) {
 	if err := repo.db.WithContext(ctx).Save(&user).Error; err != nil {
-		return fmt.Errorf("update user error: %w", err)
+		return domain.User{}, fmt.Errorf("update user error: %w", err)
 	}
 
-	return nil
+	return user, nil
 }
 
 func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
@@ -63,7 +63,7 @@ func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+func (repo *UserRepository) GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error) {
 	var users []domain.User
 
 	offset := (page - 1) * pageSize

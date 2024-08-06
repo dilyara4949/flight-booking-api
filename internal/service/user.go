@@ -8,6 +8,7 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/dilyara4949/flight-booking-api/internal/repository/errors"
+	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -47,7 +48,6 @@ func (service *User) CreateUser(ctx context.Context, signup request.Signup, pass
 	}
 
 	err = service.repo.Create(ctx, &user)
-
 	return user, err
 }
 
@@ -76,6 +76,32 @@ func (service *User) ValidateUser(ctx context.Context, signin request.Signin) (d
 	return *user, nil
 }
 
+func (service *User) UpdateUser(ctx context.Context, req request.UpdateUser, userID uuid.UUID) (domain.User, error) {
+	user, err := service.Get(ctx, userID)
+	if err != nil {
+		return domain.User{}, errs.ErrUserNotFound
+	}
+
+	if req.Phone != "" {
+		user.Phone = req.Phone
+	}
+
+	if req.Email != "" {
+		user.Email = req.Email
+	}
+
+	if req.Role != "" {
+		user.Role = req.Role
+	}
+
+	user, err = service.repo.Update(ctx, user)
+	if err != nil {
+		return domain.User{}, err
+	}
+
+	return user, nil
+}
+
 func (service *User) ResetPassword(ctx context.Context, req request.ResetPassword, requirePasswordReset bool) error {
 	user, err := service.ValidateUser(ctx, request.Signin{
 		Email:    req.Email,
@@ -97,4 +123,8 @@ func (service *User) ResetPassword(ctx context.Context, req request.ResetPasswor
 
 	err = service.repo.UpdatePassword(ctx, user.ID, string(encryptedPassword), requirePasswordReset)
 	return err
+}
+
+func (service *User) GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+	return service.repo.GetUsers(ctx, page, pageSize)
 }
