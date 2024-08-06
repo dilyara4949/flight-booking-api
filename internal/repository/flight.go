@@ -19,6 +19,13 @@ func NewFlightRepository(db *gorm.DB) FlightRepository {
 	return FlightRepository{db: db}
 }
 
+func (repo *FlightRepository) Update(ctx context.Context, flight domain.Flight) (domain.Flight, error) {
+	if err := repo.db.WithContext(ctx).Save(&flight).Error; err != nil {
+		return domain.Flight{}, fmt.Errorf("update flight error: %w", err)
+	}
+	return flight, nil
+}
+
 func (repo *FlightRepository) GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error) {
 	flights := make([]domain.Flight, 0)
 

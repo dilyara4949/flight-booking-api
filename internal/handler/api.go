@@ -36,28 +36,29 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engi
 			}
 			users := v1.Group("/users")
 			{
-				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.LongTtl)*time.Minute))
-				{
-					private.PUT("/:userId", UpdateUserHandler(userService))
-					private.DELETE("/:userId", DeleteUserHandler(userService))
-					private.GET("/:userId", GetUserHandler(userService))
-				}
 				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"), middleware.Cache(cache, time.Duration(cfg.Redis.ShortTtl)*time.Minute))
 				{
 					admin.GET("/", GetUsersHandler(userService))
+				}
+				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.LongTtl)*time.Minute))
+				{
+					private.GET("/:userId", GetUserHandler(userService))
+					private.PUT("/:userId", UpdateUserHandler(userService))
+					private.DELETE("/:userId", DeleteUserHandler(userService))
 				}
 			}
 
 			flights := v1.Group("/flights")
 			{
-				flights.GET("/:flightId", GetFlightHandler(flightService)).
-					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.LongTtl)*time.Minute))
-				flights.GET("/", GetFlights(flightService)).
-					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.ShortTtl)*time.Minute))
-
+				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/", GetFlights(flightService))
+					private.GET("/:flightId", GetFlightHandler(flightService))
+				}
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
+					admin.PUT("/:flightId", UpdateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
