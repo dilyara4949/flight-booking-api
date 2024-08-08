@@ -1,0 +1,2 @@
+INSERT INTO users (id, email, password, phone, role) VALUES ('5c40fa54-cf37-4e7c-8ebb-d883c7e31f96', 'admin@mail.ru', '$2a$10$/w0rVfGHTAkGSqkTouPNMuwKsSWxhIO7bKRqnxHHeDKOCT9//i0g.', '87777777777', 'admin'),
+                                                            ('5a57c98d-87a0-436b-a016-634622efbf4e', 'user@mail.ru', '$2a$10$/w0rVfGHTAkGSqkTouPNMuwKsSWxhIO7bKRqnxHHeDKOCT9//i0g.', '87777777777', 'user');
