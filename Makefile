@@ -13,13 +13,6 @@ POSTGRES_PASSWORD=12345
 POSTGRES_DB=postgres
 POSTGRES_TIMEOUT=30
 POSTGRES_MAX_CONNECTIONS=20
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=12345
-REDIS_TIMEOUT=10
-REDIS_TTL=5
-REDIS_DATABASE=0
-REDIS_POOL_SIZE=10
 
 lint:
 	  $(GOLANGCILINT) run -v --enable-all
@@ -59,11 +52,4 @@ export_env:
 	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
 	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
 	@echo "export HEADER_TIMEOUT=$(HEADER_TIMEOUT)" >> set_env.sh
-	@echo "export REDIS_HOST=$(REDIS_HOST)" >> set_env.sh
-	@echo "export REDIS_PORT=$(REDIS_PORT)" >> set_env.sh
-	@echo "export REDIS_PASSWORD=$(REDIS_PASSWORD)" >> set_env.sh
-	@echo "export REDIS_TIMEOUT=$(REDIS_TIMEOUT)" >> set_env.sh
-	@echo "export REDIS_TTL=$(REDIS_TTL)" >> set_env.sh
-	@echo "export REDIS_DATABASE=$(REDIS_DATABASE)" >> set_env.sh
-	@echo "export REDIS_POOL_SIZE=$(REDIS_POOL_SIZE)" >> set_env.sh
 	@chmod +x set_env.sh
