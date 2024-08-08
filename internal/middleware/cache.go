@@ -74,21 +74,24 @@ func getCacheKey(c *gin.Context) (id string) {
 	switch {
 	case strings.Contains(c.Request.URL.Path, "/flights/"):
 		flightID := c.Param("flightId")
+		if flightID != "" {
+			id = "flight-" + flightID
+		}
 		if flightID == "" {
 			page, pageSize := pagination.GetPageInfo(c)
 
 			id = fmt.Sprintf("flights-page%d-size%d", page, pageSize)
-		} else {
-			id = "flight-" + flightID
 		}
 	case strings.Contains(c.Request.URL.Path, "/users/"):
 		userID := c.Param("userId")
+		if userID != "" {
+			id = "user-" + userID
+		}
+
 		if userID == "" {
 			page, pageSize := pagination.GetPageInfo(c)
 
 			id = fmt.Sprintf("users-page%d-size%d", page, pageSize)
-		} else {
-			id = "user-" + userID
 		}
 
 		if !auth.AccessCheck(c, c.GetString("user_id"), "userId") {
