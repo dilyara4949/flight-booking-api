@@ -10,8 +10,8 @@ run:
 create-migration:
 	@read -p "migration name: " name; \
 	timestamp=$$(date +%Y%m%d%H%M); \
-	touch internal/database/postgres/migration/$${timestamp}_$$name.up.sql; \
-	touch internal/database/postgres/migration/$${timestamp}_$$name.down.sql
+	echo "-- Migration: $${name}" > internal/database/postgres/migration/$${timestamp}_$${name}.up.sql; \
+	echo "-- Rollback: $${name}" > internal/database/postgres/migration/$${timestamp}_$${name}.down.sql; \
 
 migrate-up:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration up
