@@ -79,6 +79,7 @@ func getCacheKey(c *gin.Context) (id string) {
 		if flightID != "" {
 			id = "flight-" + flightID
 		}
+
 		if flightID == "" {
 			page, pageSize := pagination.GetPageInfo(c)
 
@@ -98,7 +99,7 @@ func getCacheKey(c *gin.Context) (id string) {
 
 		if !auth.AccessCheck(c, c.GetString("user_id"), "userId") {
 			c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access denied"})
-			return
+			return ""
 		}
 	}
 	return id

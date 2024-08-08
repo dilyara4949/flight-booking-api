@@ -14,6 +14,7 @@ import (
 
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/auth"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
@@ -349,7 +350,7 @@ func TestAccessCheck(t *testing.T) {
 				{Key: tt.expectedIDKey, Value: tt.paramValue},
 			}
 
-			result := AccessCheck(ctx, tt.expectedContextID, tt.expectedIDKey)
+			result := auth.AccessCheck(ctx, tt.expectedContextID, tt.expectedIDKey)
 			if tt.expectedResult != result {
 				t.Errorf("expected %v, got %v", tt.expectedResult, result)
 			}
