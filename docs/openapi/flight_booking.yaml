@@ -149,7 +149,6 @@ components:
       type: object
       required:
         - flight_id
-        - rank
       properties:
         flight_id:
           type: string
