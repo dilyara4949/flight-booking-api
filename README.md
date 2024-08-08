@@ -30,7 +30,7 @@ Do not forget to set all needed configuration variables:
 
 ```
 make export_env
-source export_env
+source set_env.sh
 ```
 
 After initializing all the necessary dependencies, you can run project:
