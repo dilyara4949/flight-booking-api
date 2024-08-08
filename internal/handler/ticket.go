@@ -80,7 +80,7 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 
 func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+		if !AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -117,7 +117,7 @@ func UpdateTicketHandler(service TicketService) gin.HandlerFunc {
 
 func GetTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+		if !AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -145,7 +145,7 @@ func GetTicketHandler(service TicketService) gin.HandlerFunc {
 
 func DeleteTicketHandler(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+		if !AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -173,7 +173,7 @@ func DeleteTicketHandler(service TicketService) gin.HandlerFunc {
 
 func GetTickets(service TicketService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+		if !AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
