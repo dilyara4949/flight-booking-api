@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
@@ -8,7 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
-	"time"
 )
 
 func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engine {

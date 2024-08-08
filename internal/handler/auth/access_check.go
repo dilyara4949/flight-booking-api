@@ -9,7 +9,7 @@ const (
 	userRoleKey = "user_role"
 )
 
-func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool {
+func AccessCheck(req *gin.Context, expectedContextID, expectedIDKey string) bool {
 	role, exists := req.Get(userRoleKey)
 	if !exists {
 		return false

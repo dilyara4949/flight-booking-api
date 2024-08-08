@@ -4,15 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"log/slog"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/dilyara4949/flight-booking-api/internal/handler/auth"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response/pagination"
 	"github.com/gin-gonic/gin"
 	"github.com/redis/go-redis/v9"
-	"log/slog"
-	"net/http"
-	"strings"
-	"time"
 )
 
 func Cache(cache *redis.Client, ttl time.Duration) gin.HandlerFunc {
@@ -90,7 +91,7 @@ func getCacheKey(c *gin.Context) (id string) {
 			id = "user-" + userID
 		}
 
-		if !auth.AccessCheck(*c, c.GetString("user_id"), "userId") {
+		if !auth.AccessCheck(c, c.GetString("user_id"), "userId") {
 			c.AbortWithStatusJSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}

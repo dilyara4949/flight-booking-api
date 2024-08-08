@@ -110,25 +110,6 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 	}
 }
 
-func AccessCheck(req *gin.Context, expectedContextID, expectedIDKey string) bool {
-	role, exists := req.Get(middleware.UserRoleKey)
-	if !exists {
-		return false
-	}
-
-	userRole, ok := role.(string)
-	if !ok {
-		return false
-	}
-
-	userID := req.Param(expectedIDKey)
-	if userRole == AdminRole || expectedContextID == userID && expectedContextID != "" {
-		return true
-	}
-
-	return false
-}
-
 func ResetPasswordHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req request.ResetPassword
