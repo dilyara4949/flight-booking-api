@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  ENVIRONMENT: "local"
+  JWT_TOKEN_SECRET: "my_secret_key"
+  REST_PORT: "8080"
+  ACCESS_TOKEN_EXPIRE: "877"
+  ADDRESS: "0.0.0.0"
+  HEADER_TIMEOUT: "5s"
+  POSTGRES_HOST: "postgres"
+  POSTGRES_PORT: "5432"
+  POSTGRES_USER: "postgres"
+  POSTGRES_PASSWORD: "12345"
+  POSTGRES_DB: "postgres"
+  POSTGRES_TIMEOUT: "30"
+  POSTGRES_MAX_CONNECTIONS: "20"
+  REDIS_HOST: "redis"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: "12345"
+  REDIS_TIMEOUT: "10"
+  REDIS_TTL: "5"
+  REDIS_DATABASE: "0"
+  REDIS_POOL_SIZE: "10"
