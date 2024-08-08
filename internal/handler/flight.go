@@ -10,6 +10,7 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
+	"github.com/dilyara4949/flight-booking-api/internal/handler/response/pagination"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -33,7 +34,7 @@ func GetFlights(service FlightService) gin.HandlerFunc {
 			available = availableDefault
 		}
 
-		page, pageSize := GetPageInfo(c)
+		page, pageSize := pagination.GetPageInfo(c)
 
 		flights, err := service.GetFlights(c, page, pageSize, available)
 		if err != nil {

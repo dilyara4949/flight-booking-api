@@ -1,4 +1,4 @@
-package handler
+package pagination
 
 import (
 	"github.com/gin-gonic/gin"

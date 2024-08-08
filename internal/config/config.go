@@ -14,6 +14,7 @@ type Config struct {
 	Address           string
 	HeaderTimeout     time.Duration
 	Postgres
+	Redis
 }
 
 type Postgres struct {
@@ -24,6 +25,17 @@ type Postgres struct {
 	DB             string
 	Timeout        int
 	MaxConnections int
+}
+
+type Redis struct {
+	Host               string
+	Port               string
+	Password           string
+	Timeout            int
+	PoolSize           int
+	Database           int
+	LongCacheDuration  time.Duration
+	ShortCacheDuration time.Duration
 }
 
 func NewConfig() (Config, error) {
