@@ -28,14 +28,14 @@ type Postgres struct {
 }
 
 type Redis struct {
-	Host     string
-	Port     string
-	Password string
-	Timeout  int
-	PoolSize int
-	Database int
-	LongTtl  int
-	ShortTtl int
+	Host               string
+	Port               string
+	Password           string
+	Timeout            int
+	PoolSize           int
+	Database           int
+	LongCacheDuration  time.Duration
+	ShortCacheDuration time.Duration
 }
 
 func NewConfig() (Config, error) {

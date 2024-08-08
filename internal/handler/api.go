@@ -1,8 +1,6 @@
 package handler
 
 import (
-	"time"
-
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
@@ -37,11 +35,11 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engi
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
 				{
 					admin.GET("/", GetUsersHandler(userService))
 				}
-				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, time.Duration(cfg.Redis.LongTtl)*time.Minute))
+				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.LongCacheDuration))
 				{
 					private.GET("/:userId", GetUserHandler(userService))
 					private.PUT("/:userId", UpdateUserHandler(userService))
@@ -51,15 +49,16 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engi
 
 			flights := v1.Group("/flights")
 			{
-				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
-				{
-					private.GET("/", GetFlights(flightService))
-					private.GET("/:flightId", GetFlightHandler(flightService))
-				}
+				flights.GET("/:flightId", GetFlightHandler(flightService)).
+					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.LongCacheDuration))
+				flights.GET("/", GetFlights(flightService)).
+					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
+				flights.PUT("/:flightId", UpdateFlightHandler(flightService)).
+					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
+
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
-					admin.PUT("/:flightId", UpdateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}

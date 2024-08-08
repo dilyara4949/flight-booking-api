@@ -43,7 +43,9 @@ func Cache(cache *redis.Client, ttl time.Duration) gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusOK, jsonResponse)
 				return
 			}
-		} else {
+		}
+
+		if c.Request.Method == http.MethodPut {
 			slog.Info("Cache invalidation on update", "id", id)
 		}
 
