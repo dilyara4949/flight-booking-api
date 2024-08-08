@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 
@@ -27,16 +28,12 @@ func (service *Ticket) BookTicket(ctx context.Context, req request.BookTicket, u
 		Price:    flight.Price,
 	}
 
-	ticket, err := service.repo.BookTicket(ctx, ticket)
+	ticket, err := service.repo.BookTicket(ctx, ticket, flight.TotalTickets)
 	if err != nil {
 		return domain.Ticket{}, err
 	}
 
 	return ticket, nil
-}
-
-func (service *Ticket) CheckAvailability(ctx context.Context, flightID uuid.UUID, totalTickets int) (bool, error) {
-	return service.repo.CheckAvailability(ctx, flightID, totalTickets)
 }
 
 func (service *Ticket) Delete(ctx context.Context, ticketID, userID uuid.UUID) error {

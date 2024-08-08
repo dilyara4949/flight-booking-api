@@ -2,9 +2,10 @@ package handler
 
 import (
 	"context"
-	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"log/slog"
 	"net/http"
+
+	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
@@ -15,7 +16,6 @@ import (
 
 type TicketService interface {
 	BookTicket(ctx context.Context, req request.BookTicket, userID uuid.UUID, flight domain.Flight) (domain.Ticket, error)
-	CheckAvailability(ctx context.Context, flightID uuid.UUID, totalTickets int) (bool, error)
 	Get(ctx context.Context, ticketID, userID uuid.UUID) (domain.Ticket, error)
 	Delete(ctx context.Context, ticketID, userID uuid.UUID) error
 	GetTickets(ctx context.Context, userID uuid.UUID, page, pageSize int) ([]domain.Ticket, error)
@@ -24,7 +24,7 @@ type TicketService interface {
 
 func BookTicketHandler(ticketService TicketService, flightService FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+		if !AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -53,18 +53,6 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 		flight, err := flightService.Get(c, req.FlightID, true)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
-			return
-		}
-
-		available, err := ticketService.CheckAvailability(c, req.FlightID, flight.TotalTickets)
-		if err != nil {
-			slog.Error(err.Error(), "error", "error at checking flight availability")
-			c.JSON(http.StatusNotFound, response.Error{Error: "ticket is not available"})
-			return
-		}
-
-		if !available {
-			c.JSON(http.StatusNotFound, response.Error{Error: "tickets are out of stock"})
 			return
 		}
 
