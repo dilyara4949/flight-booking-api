@@ -36,7 +36,7 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engi
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"), middleware.Cache(cache, time.Duration(cfg.Redis.ShortTtl)*time.Minute))
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
 				{
 					admin.GET("/", GetUsersHandler(userService))
 				}
@@ -55,7 +55,7 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client) *gin.Engi
 					private.GET("/", GetFlights(flightService))
 					private.GET("/:flightId", GetFlightHandler(flightService))
 				}
-				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
+				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
 					admin.PUT("/:flightId", UpdateFlightHandler(flightService))

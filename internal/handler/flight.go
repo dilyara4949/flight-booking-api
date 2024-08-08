@@ -3,15 +3,16 @@ package handler
 import (
 	"context"
 	"fmt"
+	"log/slog"
+	"net/http"
+	"strconv"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response/pagination"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"log/slog"
-	"net/http"
-	"strconv"
 )
 
 type FlightService interface {
@@ -62,7 +63,7 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 		flight, err := service.Get(c, flightID, available)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			c.JSON(http.StatusNotFound, response.Error{Error: err.Error()})
 
 			return
 		}

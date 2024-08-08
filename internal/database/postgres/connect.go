@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
