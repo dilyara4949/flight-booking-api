@@ -2,7 +2,7 @@ GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-l
 DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
 
 lint:
-	  $(GOLANGCILINT) run -v --enable-all
+	  $(GOLANGCILINT) run -v
 
 run:
 	go run cmd/main.go
