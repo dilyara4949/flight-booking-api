@@ -1,5 +1,5 @@
 GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.57.2 golangci-lint
-DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
+DB_URL=postgres://postgres:12345@localhost:5435/postgres?sslmode=disable
 
 lint:
 	  $(GOLANGCILINT) run -v --enable-all
@@ -9,9 +9,7 @@ run:
 
 create-migration:
 	@read -p "migration name: " name; \
-	timestamp=$$(date +%Y%m%d%H%M); \
-	echo "-- Migration: $${name}" > internal/database/postgres/migration/$${timestamp}_$${name}.up.sql; \
-	echo "-- Rollback: $${name}" > internal/database/postgres/migration/$${timestamp}_$${name}.down.sql; \
+	migrate create -ext sql -dir internal/database/postgres/migration -tz "UTC" $$name
 
 migrate-up:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration up
