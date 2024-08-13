@@ -1,17 +1,18 @@
 GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.57.2 golangci-lint
 DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
-DB_URL_TEST=postgres://postgres:12345@localhost:5432/postgrestest?sslmode=disable
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=12345
-POSTGRES_DB_TEST=postgrestest
-POSTGRES_TIMEOUT=30
-POSTGRES_MAX_CONNECTIONS=20
 JWT_TOKEN_SECRET=my_secret_key
 REST_PORT=8080
 ACCESS_TOKEN_EXPIRE=877
 ADDRESS=0.0.0.0
+HEADER_TIMEOUT=5s
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=12345
+POSTGRES_DB=postgres
+POSTGRES_DB_TEST=postgrestest
+POSTGRES_TIMEOUT=30
+POSTGRES_MAX_CONNECTIONS=20
 
 .PHONY: export_env
 
@@ -45,6 +46,7 @@ export_env:
 	@echo "export POSTGRES_PORT=$(POSTGRES_PORT)" >> set_env.sh
 	@echo "export POSTGRES_USER=$(POSTGRES_USER)" >> set_env.sh
 	@echo "export POSTGRES_PASSWORD=$(POSTGRES_PASSWORD)" >> set_env.sh
+	@echo "export POSTGRES_DB=$(POSTGRES_DB)" >> set_env.sh
 	@echo "export POSTGRES_DB_TEST=$(POSTGRES_DB_TEST)" >> set_env.sh
 	@echo "export POSTGRES_TIMEOUT=$(POSTGRES_TIMEOUT)" >> set_env.sh
 	@echo "export POSTGRES_MAX_CONNECTIONS=$(POSTGRES_MAX_CONNECTIONS)" >> set_env.sh
