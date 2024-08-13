@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	errs "github.com/dilyara4949/flight-booking-api/internal/repository/errors"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"time"
 )
 
 type FlightRepository struct {

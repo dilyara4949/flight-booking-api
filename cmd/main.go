@@ -33,8 +33,9 @@ func main() {
 	apiHandler := handler.NewAPI(cfg, database)
 
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
-		Handler: apiHandler,
+		Addr:              net.JoinHostPort(cfg.Address, cfg.RestPort),
+		Handler:           apiHandler,
+		ReadHeaderTimeout: cfg.HeaderTimeout,
 	}
 
 	quit := make(chan os.Signal, 1)

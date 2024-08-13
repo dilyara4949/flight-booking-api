@@ -20,7 +20,8 @@ type AuthService interface {
 }
 
 const (
-	adminRole = "admin"
+	AdminRole = "admin"
+	UserRole  = "user"
 )
 
 func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
@@ -110,7 +111,7 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 	}
 }
 
-func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool {
+func AccessCheck(req *gin.Context, expectedContextID, expectedIDKey string) bool {
 	role, exists := req.Get(middleware.UserRoleKey)
 	if !exists {
 		return false
@@ -122,7 +123,7 @@ func AccessCheck(req gin.Context, expectedContextID, expectedIDKey string) bool 
 	}
 
 	userID := req.Param(expectedIDKey)
-	if userRole == adminRole || expectedContextID == userID && expectedContextID != "" {
+	if userRole == AdminRole || expectedContextID == userID && expectedContextID != "" {
 		return true
 	}
 
