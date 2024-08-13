@@ -101,6 +101,7 @@ func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 	}
 }
 
+
 func DeleteUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !auth.AccessCheck(c, c.GetString("user_id"), "userId") {

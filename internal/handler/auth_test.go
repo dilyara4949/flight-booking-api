@@ -76,7 +76,7 @@ func (s userServiceMock) UpdateUser(_ context.Context, _ request.UpdateUser, _ u
 	return domain.User{}, nil
 }
 
-func (s userServiceMock) GetUsers(ctx context.Context, page int, pageSize int) ([]domain.User, error) {
+func (s userServiceMock) GetUsers(_ context.Context, page int, pageSize int) ([]domain.User, error) {
 	return nil, nil
 }
 
