@@ -1,5 +1,5 @@
 GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.57.2 golangci-lint
-DB_URL=postgres://postgres:12345@localhost:5435/postgres?sslmode=disable
+DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
 JWT_TOKEN_SECRET=my_secret_key
 REST_PORT=8080
 ACCESS_TOKEN_EXPIRE=877
@@ -35,25 +35,3 @@ migrate-up:
 
 migrate-down:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration down
-
-export_env:
-	@echo "export POSTGRES_HOST=$(POSTGRES_HOST)" > set_env.sh
-	@echo "export POSTGRES_PORT=$(POSTGRES_PORT)" >> set_env.sh
-	@echo "export POSTGRES_USER=$(POSTGRES_USER)" >> set_env.sh
-	@echo "export POSTGRES_PASSWORD=$(POSTGRES_PASSWORD)" >> set_env.sh
-	@echo "export POSTGRES_DB=$(POSTGRES_DB)" >> set_env.sh
-	@echo "export POSTGRES_TIMEOUT=$(POSTGRES_TIMEOUT)" >> set_env.sh
-	@echo "export POSTGRES_MAX_CONNECTIONS=$(POSTGRES_MAX_CONNECTIONS)" >> set_env.sh
-	@echo "export JWT_TOKEN_SECRET=$(JWT_TOKEN_SECRET)" >> set_env.sh
-	@echo "export REST_PORT=$(REST_PORT)" >> set_env.sh
-	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
-	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
-	@echo "export HEADER_TIMEOUT=$(HEADER_TIMEOUT)" >> set_env.sh
-	@echo "export REDIS_HOST=$(REDIS_HOST)" >> set_env.sh
-	@echo "export REDIS_PORT=$(REDIS_PORT)" >> set_env.sh
-	@echo "export REDIS_PASSWORD=$(REDIS_PASSWORD)" >> set_env.sh
-	@echo "export REDIS_TIMEOUT=$(REDIS_TIMEOUT)" >> set_env.sh
-	@echo "export REDIS_TTL=$(REDIS_TTL)" >> set_env.sh
-	@echo "export REDIS_DATABASE=$(REDIS_DATABASE)" >> set_env.sh
-	@echo "export REDIS_POOL_SIZE=$(REDIS_POOL_SIZE)" >> set_env.sh
-	@chmod +x set_env.sh
