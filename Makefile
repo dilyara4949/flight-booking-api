@@ -12,13 +12,8 @@ POSTGRES_PASSWORD=12345
 POSTGRES_DB=postgres
 POSTGRES_TIMEOUT=30
 POSTGRES_MAX_CONNECTIONS=20
-REDIS_HOST=localhost
-REDIS_PORT=6379
-REDIS_PASSWORD=12345
-REDIS_TIMEOUT=10
-REDIS_TTL=5
-REDIS_DATABASE=0
-REDIS_POOL_SIZE=10
+
+.PHONY: export_env
 
 lint:
 	  $(GOLANGCILINT) run -v
@@ -35,3 +30,26 @@ migrate-up:
 
 migrate-down:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration down
+
+migrate-up-test:
+	migrate -database $(DB_URL_TEST) -path internal/database/postgres/migration up
+
+migrate-down-test:
+	migrate -database $(DB_URL_TEST) -path internal/database/postgres/migration down
+
+testintegration:
+	go test -v ./... -run TestUpdateUserHandler -tags=integration
+
+export_env:
+	@echo "export POSTGRES_HOST=$(POSTGRES_HOST)" > set_env.sh
+	@echo "export POSTGRES_PORT=$(POSTGRES_PORT)" >> set_env.sh
+	@echo "export POSTGRES_USER=$(POSTGRES_USER)" >> set_env.sh
+	@echo "export POSTGRES_PASSWORD=$(POSTGRES_PASSWORD)" >> set_env.sh
+	@echo "export POSTGRES_DB_TEST=$(POSTGRES_DB_TEST)" >> set_env.sh
+	@echo "export POSTGRES_TIMEOUT=$(POSTGRES_TIMEOUT)" >> set_env.sh
+	@echo "export POSTGRES_MAX_CONNECTIONS=$(POSTGRES_MAX_CONNECTIONS)" >> set_env.sh
+	@echo "export JWT_TOKEN_SECRET=$(JWT_TOKEN_SECRET)" >> set_env.sh
+	@echo "export REST_PORT=$(REST_PORT)" >> set_env.sh
+	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
+	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
+	@chmod +x set_env.sh
