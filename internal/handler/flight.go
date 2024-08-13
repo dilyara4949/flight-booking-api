@@ -3,10 +3,9 @@ package handler
 import (
 	"context"
 	"fmt"
-	"strconv"
-
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
@@ -15,12 +14,36 @@ import (
 	"github.com/google/uuid"
 )
 
-const availableDefault = false
-
 type FlightService interface {
+	GetFlights(ctx context.Context, page, pageSize int, available bool) ([]domain.Flight, error)
 	Get(ctx context.Context, id uuid.UUID, available bool) (*domain.Flight, error)
-	Create(ctx context.Context, flight request.CreateFlight) (domain.Flight, error)
+	Create(ctx context.Context, flight request.Flight) (domain.Flight, error)
 	Delete(ctx context.Context, id uuid.UUID) error
+	Update(ctx context.Context, flight request.Flight, id uuid.UUID) (domain.Flight, error)
+}
+
+const (
+	availableDefault = false
+)
+
+func GetFlights(service FlightService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		available, err := strconv.ParseBool(c.Query("available"))
+		if err != nil {
+			available = availableDefault
+		}
+
+		page, pageSize := GetPageInfo(c)
+
+		flights, err := service.GetFlights(c, page, pageSize, available)
+		if err != nil {
+			slog.Error("error at getting flights", "error", err.Error())
+			c.JSON(http.StatusInternalServerError, response.Error{Error: "error at getting flights"})
+
+			return
+		}
+		c.JSON(http.StatusOK, flights)
+	}
 }
 
 func GetFlightHandler(service FlightService) gin.HandlerFunc {
@@ -39,7 +62,7 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 		flight, err := service.Get(c, flightID, available)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			c.JSON(http.StatusNotFound, response.Error{Error: err.Error()})
 
 			return
 		}
@@ -49,7 +72,7 @@ func GetFlightHandler(service FlightService) gin.HandlerFunc {
 
 func CreateFlightHandler(service FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req request.CreateFlight
+		var req request.Flight
 
 		err := c.ShouldBind(&req)
 		if err != nil {
@@ -93,5 +116,30 @@ func DeleteFlightHandler(service FlightService) gin.HandlerFunc {
 			return
 		}
 		c.JSON(http.StatusNoContent, nil)
+	}
+}
+
+func UpdateFlightHandler(service FlightService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		var req request.Flight
+
+		err := c.ShouldBind(&req)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "error at binding request body"})
+			return
+		}
+
+		flightID, err := uuid.Parse(c.Param("flightId"))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: "id format is not correct"})
+			return
+		}
+
+		flight, err := service.Update(c, req, flightID)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, response.Error{Error: err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, flight)
 	}
 }

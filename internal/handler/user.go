@@ -18,13 +18,14 @@ type UserService interface {
 	DeleteUser(ctx context.Context, id uuid.UUID) error
 	ValidateUser(ctx context.Context, signin request.Signin) (domain.User, error)
 	Get(ctx context.Context, id uuid.UUID) (domain.User, error)
+	GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error)
 }
 
 const userIDParamKey = "userId"
 
 func GetUserHandler(service UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString("user_id"), userIDParamKey) {
+		if !AccessCheck(c, c.GetString("user_id"), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -47,7 +48,7 @@ func GetUserHandler(service UserService) gin.HandlerFunc {
 
 func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString("user_id"), userIDParamKey) {
+		if !AccessCheck(c, c.GetString("user_id"), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -61,7 +62,7 @@ func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 		}
 
 		if req.Role != "" {
-			if !AccessCheck(*c, "", userIDParamKey) {
+			if !AccessCheck(c, "", userIDParamKey) {
 				c.JSON(http.StatusForbidden, response.Error{Error: "access denied: not possible to change role"})
 				return
 			}
@@ -84,19 +85,23 @@ func UpdateUserHandler(userService UserService) gin.HandlerFunc {
 	}
 }
 
-func domainUserToResponse(user domain.User) response.User {
-	return response.User{
-		ID:        user.ID,
-		Email:     user.Email,
-		Phone:     user.Phone,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
+func GetUsersHandler(service UserService) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		page, pageSize := GetPageInfo(c)
+
+		users, err := service.GetUsers(c, page, pageSize)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, response.Error{Error: err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, domainUsersToResponse(users))
 	}
 }
 
 func DeleteUserHandler(userService UserService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !AccessCheck(*c, c.GetString("user_id"), "userId") {
+		if !AccessCheck(c, c.GetString("user_id"), "userId") {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
@@ -115,4 +120,29 @@ func DeleteUserHandler(userService UserService) gin.HandlerFunc {
 
 		c.JSON(http.StatusNoContent, nil)
 	}
+}
+
+func domainUserToResponse(user domain.User) response.User {
+	return response.User{
+		ID:        user.ID,
+		Email:     user.Email,
+		Phone:     user.Phone,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
+}
+
+func domainUsersToResponse(users []domain.User) []response.User {
+	res := make([]response.User, 0)
+
+	for _, user := range users {
+		res = append(res, response.User{
+			ID:        user.ID,
+			Email:     user.Email,
+			Phone:     user.Phone,
+			CreatedAt: user.CreatedAt,
+			UpdatedAt: user.UpdatedAt,
+		})
+	}
+	return res
 }

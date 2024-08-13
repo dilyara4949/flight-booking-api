@@ -21,7 +21,6 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 
 func (repo *UserRepository) Create(ctx context.Context, user *domain.User) error {
 	if err := repo.db.WithContext(ctx).Create(&user).Error; err != nil {
-		fmt.Println(user)
 		return fmt.Errorf("create user error: %w", err)
 	}
 
@@ -63,7 +62,7 @@ func (repo *UserRepository) Delete(ctx context.Context, id uuid.UUID) error {
 	return nil
 }
 
-func (repo *UserRepository) GetAll(ctx context.Context, page, pageSize int) ([]domain.User, error) {
+func (repo *UserRepository) GetUsers(ctx context.Context, page, pageSize int) ([]domain.User, error) {
 	var users []domain.User
 
 	offset := (page - 1) * pageSize

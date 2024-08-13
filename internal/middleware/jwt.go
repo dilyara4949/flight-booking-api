@@ -46,14 +46,14 @@ func JWTAuth(jwtSecret string) gin.HandlerFunc {
 		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 			claimedUID, ok := claims["user_id"].(string)
 			if !ok {
-				slog.Error("authorization: no user property in claims", "error")
+				slog.Error("authorization", "error", "no user property in claims")
 				c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "invalid token"})
 				return
 			}
 
 			claimedRole, ok := claims["role"].(string)
 			if !ok {
-				slog.Error("authorization: no role property in claims", "error")
+				slog.Error("authorization", "error", "no role property in claims")
 				c.AbortWithStatusJSON(http.StatusBadRequest, response.Error{Error: "invalid token"})
 				return
 			}

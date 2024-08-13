@@ -3,16 +3,15 @@ package main
 import (
 	"context"
 	"errors"
+	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
+	"github.com/dilyara4949/flight-booking-api/internal/handler"
 	"log/slog"
 	"net"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/dilyara4949/flight-booking-api/internal/config"
-	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
-	"github.com/dilyara4949/flight-booking-api/internal/handler"
 )
 
 func main() {
@@ -34,8 +33,9 @@ func main() {
 	apiHandler := handler.NewAPI(cfg, database)
 
 	httpServer := &http.Server{
-		Addr:    net.JoinHostPort(cfg.Address, cfg.RestPort),
-		Handler: apiHandler,
+		Addr:              net.JoinHostPort(cfg.Address, cfg.RestPort),
+		Handler:           apiHandler,
+		ReadHeaderTimeout: cfg.HeaderTimeout,
 	}
 
 	quit := make(chan os.Signal, 1)
