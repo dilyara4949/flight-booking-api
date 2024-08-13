@@ -18,7 +18,7 @@ migrate-down:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration down
 
 migrate-docker-down:
-	docker-compose run app migrate -path ./internal/database/postgres/migration -database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5435/${POSTGRES_DB}?sslmode=disable" down
+	docker-compose run app migrate -path ./internal/database/postgres/migration -database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable" down
 
 migrate-docker-up:
 	docker-compose run app migrate -path ./internal/database/postgres/migration -database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable" up
