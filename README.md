@@ -1,6 +1,19 @@
 # flight-booking-api
 api for booking flight tickets
 
+### Configuration
+
+Use, if running on local machine:
+``` 
+POSTGRES_HOST=localhost
+REDIS_HOST=localhost
+```
+if  running on docker or kubernetes:
+```
+POSTGRES_HOST=postgres
+REDIS_HOST=redis
+```
+
 ### Kubernetes
 
 [Install minikube if you dont have it yet](https://minikube.sigs.k8s.io/docs/start/)
