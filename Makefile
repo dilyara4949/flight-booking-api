@@ -1,5 +1,5 @@
 GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.57.2 golangci-lint
-DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
+DB_URL=postgres://postgres:12345@localhost:5435/postgres?sslmode=disable
 JWT_TOKEN_SECRET=my_secret_key
 REST_PORT=8080
 ACCESS_TOKEN_EXPIRE=877
@@ -21,14 +21,14 @@ REDIS_DATABASE=0
 REDIS_POOL_SIZE=10
 
 lint:
-	  $(GOLANGCILINT) run -v --enable-all
+	  $(GOLANGCILINT) run -v
 
 run:
 	go run cmd/main.go
 
 create-migration:
 	@read -p "migration name: " name; \
-	migrate create -ext sql -dir internal/database/postgres/migration -seq $$name
+	migrate create -ext sql -dir internal/database/postgres/migration -tz "UTC" $$name
 
 migrate-up:
 	migrate -database $(DB_URL) -path internal/database/postgres/migration up

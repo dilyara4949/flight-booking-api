@@ -34,7 +34,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(adminRole))
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
 				{
 					admin.GET("/", GetUsersHandler(userService))
 				}
@@ -50,12 +50,13 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 			{
 				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
 				{
-					private.GET("/:flightId", GetFlightHandler(flightService))
 					private.GET("/", GetFlights(flightService))
+					private.GET("/:flightId", GetFlightHandler(flightService))
 				}
-				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("admin"))
+				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
+					admin.PUT("/:flightId", UpdateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
