@@ -25,3 +25,6 @@ migrate-docker-up:
 
 apply-kube:
 	kubectl apply -f kubermanifests.yaml
+
+kube-forward-port:
+	kubectl port-forward services/app 8080:8080

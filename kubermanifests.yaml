@@ -78,8 +78,8 @@ spec:
     spec:
       containers:
         - name: app
-          image: dilyara4949/flight-booking-image
-        - env:
+          image: dilyara4949/flight-book:latest
+          env:
             - name: ACCESS_TOKEN_EXPIRE
               valueFrom:
                 configMapKeyRef:
@@ -180,8 +180,6 @@ spec:
                 configMapKeyRef:
                   key: REST_PORT
                   name: local-env
-          image: app
-          name: app
           ports:
             - containerPort: 8080
               protocol: TCP
@@ -345,7 +343,7 @@ spec:
     spec:
       containers:
         - name: migrate
-          image: dilyara4949/flight-booking-image:latest
+          image: dilyara4949/flight-book:latest
           command: ["sh", "-c", "migrate -path ./internal/database/postgres/migration -database postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@postgres:5432/$(POSTGRES_DB)?sslmode=disable up"]
           env:
             - name: POSTGRES_USER
