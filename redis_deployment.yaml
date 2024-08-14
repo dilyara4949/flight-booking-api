@@ -26,12 +26,18 @@ spec:
         - args:
             - redis-server
             - --requirepass
-            - ""
+            - "$(REDIS_PASSWORD)"
           image: redis:latest
           name: redis
           ports:
             - containerPort: 6379
               protocol: TCP
+          env:
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: REDIS_PASSWORD
           volumeMounts:
             - mountPath: /data
               name: redis-data

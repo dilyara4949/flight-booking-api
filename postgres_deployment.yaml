@@ -27,7 +27,10 @@ spec:
             - name: POSTGRES_DB
               value: postgres
             - name: POSTGRES_PASSWORD
-              value: "12345"
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: POSTGRES_PASSWORD
             - name: POSTGRES_USER
               value: postgres
           image: postgres:latest
