@@ -70,7 +70,7 @@ source set_env.sh
 
 [Install minikube if you dont have it yet](https://minikube.sigs.k8s.io/docs/start/)
 
-The you just need too, apply kubernetes configuration to run the project:
+Then you just need too, apply kubernetes configuration to run the project:
 
 ```
 helm install booking-app ./booking-chart
