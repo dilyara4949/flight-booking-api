@@ -23,7 +23,7 @@ func (repo *TicketRepository) BookTicket(ctx context.Context, ticket domain.Tick
 	err := repo.db.Transaction(func(tx *gorm.DB) error {
 		// check ticket's availability first
 		var count int64
-		if err := repo.db.WithContext(ctx).
+		if err := tx.WithContext(ctx).
 			Model(&domain.Ticket{}).
 			Where("flight_id = ?", ticket.FlightID).
 			Count(&count).Error; err != nil {
@@ -34,7 +34,7 @@ func (repo *TicketRepository) BookTicket(ctx context.Context, ticket domain.Tick
 			return errs.ErrTicketOutOfStock
 		}
 
-		if err := repo.db.WithContext(ctx).Create(&ticket).Error; err != nil {
+		if err := tx.WithContext(ctx).Create(&ticket).Error; err != nil {
 			return err
 		}
 		return nil
