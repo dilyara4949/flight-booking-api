@@ -1,0 +1,26 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-migrate-job
+spec:
+  template:
+    spec:
+      containers:
+        - name: migrate
+          image: {{ .Values.migrate.image }}:{{ .Values.migrate.tag }}
+          command:
+            - sh
+            - -c
+            - migrate -path ./internal/database/postgres/migration -database postgres://$(POSTGRES_USER):$(POSTGRES_PASSWORD)@{{ .Values.env.POSTGRES_HOST}}:{{ .Values.env.POSTGRES_PORT }}/$(POSTGRES_DB)?sslmode=disable up
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.env.POSTGRES_USER }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DB
+              value:  {{ .Values.env.POSTGRES_DB }}
+      restartPolicy: Never
+  backoffLimit: {{ .Values.migrate.backoffLimit }}

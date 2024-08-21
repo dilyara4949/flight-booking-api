@@ -73,7 +73,12 @@ source set_env.sh
 The you just need too, apply kubernetes configuration to run the project:
 
 ```
-kubectl apply -f 'filename'
+helm install booking-app ./booking-chart
+```
+
+or to update:
+```
+helm upgrade booking-app ./booking-chart
 ```
 
 Warning: job 'migrate-job' may crash before 'app' pod is running, that is why you may recreate  'migrate-job' to run migration on postgres schema after 'app' pod is ready.

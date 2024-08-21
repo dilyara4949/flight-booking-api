@@ -39,7 +39,7 @@ migrate-docker-up:
 	docker-compose run app migrate -path ./internal/database/postgres/migration -database "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable" up
 
 kube-forward-port:
-	kubectl port-forward services/app 8080:8080
+	kubectl port-forward services/booking-app-app 8080:8080
 
 migrate-up-test:
 	migrate -database $(DB_URL_TEST) -path internal/database/postgres/migration up
