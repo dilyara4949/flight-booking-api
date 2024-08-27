@@ -2,7 +2,6 @@
 
 ```mermaid
 sequenceDiagram
-
     User->>TicketHandler: Book Ticket
     alt Failed
         TicketHandler--xUser: Booking failed
@@ -11,5 +10,4 @@ sequenceDiagram
         Kafka->>NotifyService: Send Booking Confirmation Email
         NotifyService-->>User: Booking Confirmation Email Sent
     end
-    
 ```
