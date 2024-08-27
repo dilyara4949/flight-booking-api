@@ -1,4 +1,4 @@
-# Flight Booking API - Simple Event-Driven Architecture (Sequence Diagram)
+# Flight Booking API - Ticket Booking
 
 ```mermaid
 sequenceDiagram
