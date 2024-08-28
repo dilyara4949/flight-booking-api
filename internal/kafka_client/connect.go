@@ -2,7 +2,7 @@ package kafka_client
 
 import (
 	"fmt"
-	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 )
 
