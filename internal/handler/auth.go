@@ -61,6 +61,17 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			AccessToken: token,
 			User:        domainUserToResponse(user),
 		}
+
+		//respByte, err := json.Marshal(resp)
+		//if err != nil {
+		//	panic(err)
+		//}
+		//
+		//err = producer.Produce(&kafka.Message{
+		//	TopicPartition: kafka.TopicPartition{Topic: &cfg.Kafka.EmailPush, Partition: kafka.PartitionAny},
+		//	Value:          respByte,
+		//}, nil)
+
 		c.JSON(http.StatusOK, resp)
 	}
 }

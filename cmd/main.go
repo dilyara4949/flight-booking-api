@@ -3,9 +3,11 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
+	//kafka "github.com/dilyara4949/flight-booking-api/internal/kafka_client"
 	"log/slog"
 	"net"
 	"net/http"
@@ -30,6 +32,12 @@ func main() {
 		return
 	}
 
+	//kafkaProducer, err := kafka.ConnectProducer(cfg.Kafka)
+	//if err != nil {
+	//	slog.Error("database connection failed:", "error", err.Error())
+	//	return
+	//}
+
 	apiHandler := handler.NewAPI(cfg, database)
 
 	httpServer := &http.Server{
@@ -37,7 +45,7 @@ func main() {
 		Handler:           apiHandler,
 		ReadHeaderTimeout: cfg.HeaderTimeout,
 	}
-
+	fmt.Println(cfg)
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 

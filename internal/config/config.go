@@ -14,6 +14,7 @@ type Config struct {
 	Address           string
 	HeaderTimeout     time.Duration
 	Postgres
+	Kafka
 }
 
 type Postgres struct {
@@ -24,6 +25,12 @@ type Postgres struct {
 	DB             string
 	Timeout        int
 	MaxConnections int
+}
+
+type Kafka struct {
+	Host      string
+	Port      string
+	EmailPush string
 }
 
 func NewConfig() (Config, error) {
