@@ -39,7 +39,6 @@ func main() {
 		return
 	}
 
-	apiHandler := handler.NewAPI(cfg, database, cache)
 	kafkaProducer := kafka_client.NewKafkaProducer([]string{fmt.Sprintf("%s:%s", cfg.Kafka.Host, cfg.Kafka.Port)}, cfg.Kafka.EmailPushTopic)
 	defer func() {
 		err = kafkaProducer.Close()
@@ -50,7 +49,7 @@ func main() {
 		slog.Info("Producer closed")
 	}()
 
-	apiHandler := handler.NewAPI(cfg, database,cache, kafkaProducer)
+	apiHandler := handler.NewAPI(cfg, database, cache, kafkaProducer)
 
 	httpServer := &http.Server{
 		Addr:              net.JoinHostPort(cfg.Address, cfg.RestPort),
