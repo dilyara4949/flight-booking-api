@@ -1,5 +1,6 @@
 GOLANGCILINT ?= docker run --rm -v $(shell pwd):/app -w /app golangci/golangci-lint:v1.57.2 golangci-lint
 DB_URL=postgres://postgres:12345@localhost:5432/postgres?sslmode=disable
+DB_URL_TEST=postgres://postgres:12345@localhost:5432/postgrestest?sslmode=disable
 JWT_TOKEN_SECRET=my_secret_key
 REST_PORT=8080
 ACCESS_TOKEN_EXPIRE=877
@@ -13,8 +14,17 @@ POSTGRES_DB=postgres
 POSTGRES_DB_TEST=postgrestest
 POSTGRES_TIMEOUT=30
 POSTGRES_MAX_CONNECTIONS=20
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=12345
+REDIS_TIMEOUT=10
+REDIS_LONG_CACHE_DURATION=5m
+REDIS_SHORT_CACHE_DURATION=5m
+REDIS_DATABASE=0
+REDIS_POOL_SIZE=10
 
 .PHONY: export_env
+
 
 lint:
 	  $(GOLANGCILINT) run -v
@@ -63,4 +73,12 @@ export_env:
 	@echo "export REST_PORT=$(REST_PORT)" >> set_env.sh
 	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
 	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
+	@echo "export REDIS_HOST=$(REDIS_HOST)" >> set_env.sh
+	@echo "export REDIS_PORT=$(REDIS_PORT)" >> set_env.sh
+	@echo "export REDIS_PASSWORD=$(REDIS_PASSWORD)" >> set_env.sh
+	@echo "export REDIS_TIMEOUT=$(REDIS_TIMEOUT)" >> set_env.sh
+	@echo "export REDIS_SHORT_CACHE_DURATION=$(REDIS_SHORT_CACHE_DURATION)" >> set_env.sh
+	@echo "export REDIS_LONG_CACHE_DURATION=$(REDIS_LONG_CACHE_DURATION)" >> set_env.sh
+	@echo "export REDIS_DATABASE=$(REDIS_DATABASE)" >> set_env.sh
+	@echo "export REDIS_POOL_SIZE=$(REDIS_POOL_SIZE)" >> set_env.sh
 	@chmod +x set_env.sh
