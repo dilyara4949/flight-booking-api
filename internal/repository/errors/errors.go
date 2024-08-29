@@ -7,4 +7,5 @@ var (
 	ErrUserNotFound         = errors.New("user not found")
 	ErrInvalidEmailPassword = errors.New("invalid email or password")
 	ErrTicketNotFound       = errors.New("ticket not found")
+	ErrTicketOutOfStock     = errors.New("tickets are out of stock")
 )
