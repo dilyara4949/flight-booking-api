@@ -17,7 +17,7 @@ type KafkaProducer struct {
 	workerDone chan struct{}
 }
 
-func NewKafkaProducer(brokers []string, topic string, workerCount int) *KafkaProducer {
+func NewKafkaProducer(brokers []string, topic string) *KafkaProducer {
 	kp := &KafkaProducer{
 		writer: &kafka.Writer{
 			Addr:     kafka.TCP(brokers...),
@@ -25,12 +25,10 @@ func NewKafkaProducer(brokers []string, topic string, workerCount int) *KafkaPro
 			Balancer: &kafka.LeastBytes{},
 		},
 		messageCh:  make(chan KafkaMessage, 100),
-		workerDone: make(chan struct{}, workerCount),
+		workerDone: make(chan struct{}, 1),
 	}
 
-	for i := 0; i < workerCount; i++ {
-		go kp.startWorker()
-	}
+	go kp.startWorker()
 
 	return kp
 }
