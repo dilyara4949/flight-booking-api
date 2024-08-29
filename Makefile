@@ -13,6 +13,9 @@ POSTGRES_DB=postgres
 POSTGRES_DB_TEST=postgrestest
 POSTGRES_TIMEOUT=30
 POSTGRES_MAX_CONNECTIONS=20
+KAFKA_HOST=localhost
+KAFKA_PORT=9092
+KAFKA_EMAIL_PUSH_TOPIC=email-push
 
 .PHONY: export_env
 
@@ -54,4 +57,7 @@ export_env:
 	@echo "export REST_PORT=$(REST_PORT)" >> set_env.sh
 	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
 	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
+	@echo "export KAFKA_PORT=$(KAFKA_HOST)" >> set_env.sh
+	@echo "export KAFKA_PORT=$(KAFKA_PORT)" >> set_env.sh
+	@echo "export KAFKA_EMAIL_PUSH_TOPIC=$(KAFKA_EMAIL_PUSH_TOPIC)" >> set_env.sh
 	@chmod +x set_env.sh

@@ -55,3 +55,6 @@ also set config variables as below example:
 make export_env
 source set_env.sh
 ```
+
+### Kafka
+Make sure to have Kafka environment locally, if not set it up [here](https://kafka.apache.org/quickstart).
