@@ -19,6 +19,29 @@ func NewTicketRepository(db *gorm.DB) TicketRepository {
 	return TicketRepository{db: db}
 }
 
+func (repo *TicketRepository) BookTicket(ctx context.Context, ticket domain.Ticket, totalTickets int) (domain.Ticket, error) {
+	err := repo.db.Transaction(func(tx *gorm.DB) error {
+		// check ticket's availability first
+		var count int64
+		if err := tx.WithContext(ctx).
+			Model(&domain.Ticket{}).
+			Where("flight_id = ?", ticket.FlightID).
+			Count(&count).Error; err != nil {
+			return err
+		}
+
+		if int64(totalTickets)-count <= 0 {
+			return errs.ErrTicketOutOfStock
+		}
+
+		if err := tx.WithContext(ctx).Create(&ticket).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	return ticket, err
+}
+
 func (repo *TicketRepository) Delete(ctx context.Context, ticketID, userID uuid.UUID) error {
 	res := repo.db.WithContext(ctx).Delete(domain.Ticket{ID: ticketID, UserID: userID})
 	if res.Error != nil {

@@ -15,6 +15,7 @@ type Config struct {
 	HeaderTimeout     time.Duration
 	Postgres
 	Kafka
+	Redis
 }
 
 type Postgres struct {
@@ -25,6 +26,17 @@ type Postgres struct {
 	DB             string
 	Timeout        int
 	MaxConnections int
+}
+
+type Redis struct {
+	Host               string
+	Port               string
+	Password           string
+	Timeout            int
+	PoolSize           int
+	Database           int
+	LongCacheDuration  time.Duration
+	ShortCacheDuration time.Duration
 }
 
 type Kafka struct {

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
+	"github.com/dilyara4949/flight-booking-api/internal/database/redis"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
 	"github.com/dilyara4949/flight-booking-api/internal/kafka_client"
 	"log/slog"
@@ -32,6 +33,13 @@ func main() {
 		return
 	}
 
+	cache, err := redis.Connect(ctx, cfg.Redis)
+	if err != nil {
+		slog.Error("redis connection failed", "error", err.Error())
+		return
+	}
+
+	apiHandler := handler.NewAPI(cfg, database, cache)
 	kafkaProducer := kafka_client.NewKafkaProducer([]string{fmt.Sprintf("%s:%s", cfg.Kafka.Host, cfg.Kafka.Port)}, cfg.Kafka.EmailPushTopic)
 	defer func() {
 		err = kafkaProducer.Close()
@@ -42,7 +50,7 @@ func main() {
 		slog.Info("Producer closed")
 	}()
 
-	apiHandler := handler.NewAPI(cfg, database, kafkaProducer)
+	apiHandler := handler.NewAPI(cfg, database,cache, kafkaProducer)
 
 	httpServer := &http.Server{
 		Addr:              net.JoinHostPort(cfg.Address, cfg.RestPort),

@@ -7,10 +7,11 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/dilyara4949/flight-booking-api/internal/service"
 	"github.com/gin-gonic/gin"
+	"github.com/redis/go-redis/v9"
 	"gorm.io/gorm"
 )
 
-func NewAPI(cfg config.Config, database *gorm.DB, producer *kafka_client.KafkaProducer) *gin.Engine {
+func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client, producer *kafka_client.KafkaProducer) *gin.Engine {
 	userRepo := repository.NewUserRepository(database)
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
@@ -35,39 +36,47 @@ func NewAPI(cfg config.Config, database *gorm.DB, producer *kafka_client.KafkaPr
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
 				{
 					admin.GET("/", GetUsersHandler(userService))
 				}
-				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.LongCacheDuration))
 				{
-					users.PUT("/:userId", UpdateUserHandler(userService))
-					private.DELETE("/:userId", DeleteUserHandler(userService))
 					private.GET("/:userId", GetUserHandler(userService))
+					private.PUT("/:userId", UpdateUserHandler(userService))
+					private.DELETE("/:userId", DeleteUserHandler(userService))
 				}
 			}
 
 			flights := v1.Group("/flights")
 			{
-				private := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
-				{
-					private.GET("/", GetFlights(flightService))
-					private.GET("/:flightId", GetFlightHandler(flightService))
-				}
+				flights.GET("/:flightId", GetFlightHandler(flightService)).
+					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.LongCacheDuration))
+				flights.GET("/", GetFlights(flightService)).
+					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
+				flights.PUT("/:flightId", UpdateFlightHandler(flightService)).
+					Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
+
 				admin := flights.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole))
 				{
 					admin.POST("/", CreateFlightHandler(flightService))
-					admin.PUT("/:flightId", UpdateFlightHandler(flightService))
 					admin.DELETE("/:flightId", DeleteFlightHandler(flightService))
 				}
 			}
 
-			tickets := v1.Group("/users/:userId/tickets").Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+			tickets := v1.Group("/users/:userId/tickets")
 			{
-				tickets.GET("/", GetTickets(ticketService))
-				tickets.GET(":ticketId", GetTicketHandler(ticketService))
-				tickets.PUT("/:ticketId", UpdateTicketHandler(ticketService))
-				tickets.DELETE("/:ticketId", DeleteTicketHandler(ticketService))
+				private := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret))
+				{
+					private.GET("/", GetTickets(ticketService))
+					private.GET(":ticketId", GetTicketHandler(ticketService))
+					private.PUT("/:ticketId", UpdateTicketHandler(ticketService))
+					private.DELETE("/:ticketId", DeleteTicketHandler(ticketService))
+				}
+				user := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("user"))
+				{
+					user.POST("/", BookTicketHandler(ticketService, flightService))
+				}
 			}
 		}
 	}
