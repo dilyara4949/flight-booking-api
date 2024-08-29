@@ -11,7 +11,6 @@ import (
 	"github.com/dilyara4949/flight-booking-api/internal/domain"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/request"
 	"github.com/dilyara4949/flight-booking-api/internal/handler/response"
-	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -109,25 +108,6 @@ func SigninHandler(authService AuthService, userService UserService, cfg config.
 		}
 		c.JSON(http.StatusOK, resp)
 	}
-}
-
-func AccessCheck(req *gin.Context, expectedContextID, expectedIDKey string) bool {
-	role, exists := req.Get(middleware.UserRoleKey)
-	if !exists {
-		return false
-	}
-
-	userRole, ok := role.(string)
-	if !ok {
-		return false
-	}
-
-	userID := req.Param(expectedIDKey)
-	if userRole == AdminRole || expectedContextID == userID && expectedContextID != "" {
-		return true
-	}
-
-	return false
 }
 
 func ResetPasswordHandler(userService UserService) gin.HandlerFunc {
