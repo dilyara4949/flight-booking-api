@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/dilyara4949/flight-booking-api/internal/config"
+	"github.com/dilyara4949/flight-booking-api/internal/kafka_client"
 	"github.com/dilyara4949/flight-booking-api/internal/middleware"
 	"github.com/dilyara4949/flight-booking-api/internal/repository"
 	"github.com/dilyara4949/flight-booking-api/internal/service"
@@ -9,7 +10,7 @@ import (
 	"gorm.io/gorm"
 )
 
-func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
+func NewAPI(cfg config.Config, database *gorm.DB, producer *kafka_client.KafkaProducer) *gin.Engine {
 	userRepo := repository.NewUserRepository(database)
 	authService := service.NewAuthService(userRepo)
 	userService := service.NewUserService(userRepo)
@@ -28,7 +29,7 @@ func NewAPI(cfg config.Config, database *gorm.DB) *gin.Engine {
 		{
 			auth := v1.Group("/auth")
 			{
-				auth.POST("/signup", SignupHandler(authService, userService, cfg))
+				auth.POST("/signup", SignupHandler(authService, userService, cfg, producer))
 				auth.POST("/signin", SigninHandler(authService, userService, cfg))
 				auth.POST("/reset-password", ResetPasswordHandler(userService))
 			}

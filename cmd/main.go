@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"github.com/dilyara4949/flight-booking-api/internal/config"
 	"github.com/dilyara4949/flight-booking-api/internal/database/postgres"
 	"github.com/dilyara4949/flight-booking-api/internal/handler"
@@ -31,13 +32,17 @@ func main() {
 		return
 	}
 
-	_, err = kafka_client.ConnectProducer(cfg.Kafka)
-	if err != nil {
-		slog.Error("database connection failed:", "error", err.Error())
-		return
-	}
+	kafkaProducer := kafka_client.NewKafkaProducer([]string{fmt.Sprintf("%s:%s", cfg.Kafka.Host, cfg.Kafka.Port)}, cfg.Kafka.EmailPushTopic, cfg.Kafka.ProducerWorker)
+	defer func() {
+		err = kafkaProducer.Close()
+		if err != nil {
+			slog.Error("Error closing producer: ", "error", err.Error())
+			return
+		}
+		slog.Info("Producer closed")
+	}()
 
-	apiHandler := handler.NewAPI(cfg, database)
+	apiHandler := handler.NewAPI(cfg, database, kafkaProducer)
 
 	httpServer := &http.Server{
 		Addr:              net.JoinHostPort(cfg.Address, cfg.RestPort),

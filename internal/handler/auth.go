@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"github.com/dilyara4949/flight-booking-api/internal/kafka_client"
 	"log/slog"
 	"net/http"
 
@@ -24,7 +26,7 @@ const (
 	UserRole  = "user"
 )
 
-func SignupHandler(authService AuthService, userService UserService, cfg config.Config) gin.HandlerFunc {
+func SignupHandler(authService AuthService, userService UserService, cfg config.Config, kafkaProducer *kafka_client.KafkaProducer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var req request.Signup
 
@@ -62,17 +64,14 @@ func SignupHandler(authService AuthService, userService UserService, cfg config.
 			User:        domainUserToResponse(user),
 		}
 
-		//respByte, err := json.Marshal(resp)
-		//if err != nil {
-		//	panic(err)
-		//}
-		//
-		//err = producer.Produce(&kafka.Message{
-		//	TopicPartition: kafka.TopicPartition{Topic: &cfg.Kafka.EmailPush, Partition: kafka.PartitionAny},
-		//	Value:          respByte,
-		//}, nil)
-
 		c.JSON(http.StatusOK, resp)
+
+		userData := fmt.Sprintf("Wellcome, %s! You are registered successfully", user.Email)
+
+		kafkaProducer.SendMessage(kafka_client.KafkaMessage{
+			Key:   []byte(user.Email),
+			Value: []byte(userData),
+		})
 	}
 }
 
