@@ -34,6 +34,7 @@ func main() {
 	cache, err := redis.Connect(ctx, cfg.Redis)
 	if err != nil {
 		slog.Error("redis connection failed", "error", err.Error())
+		return
 	}
 
 	apiHandler := handler.NewAPI(cfg, database, cache)
