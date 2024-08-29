@@ -31,7 +31,6 @@ type Kafka struct {
 	Host           string
 	Port           string
 	EmailPushTopic string
-	ProducerWorker int
 }
 
 func NewConfig() (Config, error) {

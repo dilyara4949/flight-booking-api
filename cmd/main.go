@@ -32,7 +32,7 @@ func main() {
 		return
 	}
 
-	kafkaProducer := kafka_client.NewKafkaProducer([]string{fmt.Sprintf("%s:%s", cfg.Kafka.Host, cfg.Kafka.Port)}, cfg.Kafka.EmailPushTopic, cfg.Kafka.ProducerWorker)
+	kafkaProducer := kafka_client.NewKafkaProducer([]string{fmt.Sprintf("%s:%s", cfg.Kafka.Host, cfg.Kafka.Port)}, cfg.Kafka.EmailPushTopic)
 	defer func() {
 		err = kafkaProducer.Close()
 		if err != nil {
