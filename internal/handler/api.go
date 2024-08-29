@@ -75,7 +75,7 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client, producer 
 				}
 				user := tickets.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck("user"))
 				{
-					user.POST("/", BookTicketHandler(ticketService, flightService))
+					user.POST("/", BookTicketHandler(ticketService, flightService, userService, producer))
 				}
 			}
 		}
