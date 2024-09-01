@@ -25,7 +25,7 @@ type TicketService interface {
 
 func BookTicketHandler(ticketService TicketService, flightService FlightService) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		if !!auth.AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
+		if !auth.AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
 			return
 		}
