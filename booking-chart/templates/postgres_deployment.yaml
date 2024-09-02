@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-postgres
+  labels:
+    app: {{ .Release.Name }}-postgres
+  annotations:
+    kompose.cmd: kompose convert -f docker-compose.yml -o kubermanifests.yaml
+    kompose.version: 1.34.0 (cbf2835db)
+spec:
+  replicas: {{ .Values.postgres.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-postgres
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-postgres
+      annotations:
+        kompose.cmd: kompose convert -f docker-compose.yml -o kubermanifests.yaml
+        kompose.version: 1.34.0 (cbf2835db)
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          ports:
+            - containerPort: {{ .Values.env.POSTGRES_PORT }}
+              protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              value: "{{ .Values.env.POSTGRES_DB }}"
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Release.Name }}-postgres-secret
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_USER
+              value: "{{ .Values.env.POSTGRES_USER }}"
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      restartPolicy: Always
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-postgres-data

@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-local-env
+  labels:
+    io.kompose.service: app-local-env
+data:
+  ACCESS_TOKEN_EXPIRE: "{{ .Values.env.ACCESS_TOKEN_EXPIRE }}"
+  ADDRESS: "{{ .Values.env.ADDRESS }}"
+  ENVIRONMENT: "{{ .Values.env.ENVIRONMENT }}"
+  HEADER_TIMEOUT: "{{ .Values.env.HEADER_TIMEOUT }}"
+  JWT_TOKEN_SECRET: "{{ .Values.env.JWT_TOKEN_SECRET }}"
+  POSTGRES_DB: "{{ .Values.env.POSTGRES_DB }}"
+  POSTGRES_HOST: "{{ .Values.env.POSTGRES_HOST }}"
+  POSTGRES_MAX_CONNECTIONS: "{{ .Values.env.POSTGRES_MAX_CONNECTIONS }}"
+  POSTGRES_PORT: "{{ .Values.env.POSTGRES_PORT }}"
+  POSTGRES_TIMEOUT: "{{ .Values.env.POSTGRES_TIMEOUT }}"
+  POSTGRES_USER: "{{ .Values.env.POSTGRES_USER }}"
+  REDIS_DATABASE: "{{ .Values.env.REDIS_DATABASE }}"
+  REDIS_HOST: "{{ .Values.env.REDIS_HOST }}"
+  REDIS_POOL_SIZE: "{{ .Values.env.REDIS_POOL_SIZE }}"
+  REDIS_PORT: "{{ .Values.env.REDIS_PORT }}"
+  REDIS_TIMEOUT: "{{ .Values.env.REDIS_TIMEOUT }}"
+  REDIS_TTL: "{{ .Values.env.REDIS_TTL }}"
+  REST_PORT: "{{ .Values.env.REST_PORT }}"
