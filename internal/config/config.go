@@ -14,6 +14,7 @@ type Config struct {
 	Address           string
 	HeaderTimeout     time.Duration
 	Postgres
+	Kafka
 	Redis
 }
 
@@ -36,6 +37,12 @@ type Redis struct {
 	Database           int
 	LongCacheDuration  time.Duration
 	ShortCacheDuration time.Duration
+}
+
+type Kafka struct {
+	Host           string
+	Port           string
+	EmailPushTopic string
 }
 
 func NewConfig() (Config, error) {

@@ -14,6 +14,9 @@ POSTGRES_DB=postgres
 POSTGRES_DB_TEST=postgrestest
 POSTGRES_TIMEOUT=30
 POSTGRES_MAX_CONNECTIONS=20
+KAFKA_HOST=localhost
+KAFKA_PORT=9092
+KAFKA_EMAIL_PUSH_TOPIC=email-push
 REDIS_HOST=localhost
 REDIS_PORT=6379
 REDIS_PASSWORD=12345
@@ -25,7 +28,6 @@ REDIS_POOL_SIZE=10
 HEADER_TIMEOUT=10s
 
 .PHONY: export_env
-
 
 lint:
 	  $(GOLANGCILINT) run -v
@@ -65,6 +67,9 @@ export_env:
 	@echo "export REST_PORT=$(REST_PORT)" >> set_env.sh
 	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
 	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
+	@echo "export KAFKA_HOST=$(KAFKA_HOST)" >> set_env.sh
+	@echo "export KAFKA_PORT=$(KAFKA_PORT)" >> set_env.sh
+	@echo "export KAFKA_EMAIL_PUSH_TOPIC=$(KAFKA_EMAIL_PUSH_TOPIC)" >> set_env.sh
 	@echo "export REDIS_HOST=$(REDIS_HOST)" >> set_env.sh
 	@echo "export REDIS_PORT=$(REDIS_PORT)" >> set_env.sh
 	@echo "export REDIS_PASSWORD=$(REDIS_PASSWORD)" >> set_env.sh

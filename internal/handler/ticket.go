@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"fmt"
+	"github.com/dilyara4949/flight-booking-api/internal/kafka_client"
 	"log/slog"
 	"net/http"
 
@@ -23,7 +25,7 @@ type TicketService interface {
 	Update(ctx context.Context, ticketID, userID uuid.UUID, req request.UpdateTicket) (domain.Ticket, error)
 }
 
-func BookTicketHandler(ticketService TicketService, flightService FlightService) gin.HandlerFunc {
+func BookTicketHandler(ticketService TicketService, flightService FlightService, userService UserService, kafkaProducer *kafka_client.KafkaProducer) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		if !auth.AccessCheck(c, c.GetString(middleware.UserIDKey), userIDParamKey) {
 			c.JSON(http.StatusForbidden, response.Error{Error: "access denied"})
@@ -64,6 +66,14 @@ func BookTicketHandler(ticketService TicketService, flightService FlightService)
 		}
 
 		c.JSON(http.StatusOK, ticket)
+
+		user, err := userService.Get(c, userID)
+		userData := fmt.Sprintf("Ticket with id %s booked", ticket.ID.String())
+
+		kafkaProducer.SendMessage(kafka_client.KafkaMessage{
+			Key:   []byte(user.Email),
+			Value: []byte(userData),
+		})
 	}
 }
 
