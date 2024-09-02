@@ -43,7 +43,7 @@ func (repo *TicketRepository) BookTicket(ctx context.Context, ticket domain.Tick
 }
 
 func (repo *TicketRepository) Delete(ctx context.Context, ticketID, userID uuid.UUID) error {
-	res := repo.db.WithContext(ctx).Delete(domain.Ticket{ID: ticketID, UserID: userID})
+	res := repo.db.WithContext(ctx).Delete(&domain.Ticket{ID: ticketID, UserID: userID})
 	if res.Error != nil {
 		return res.Error
 	}
@@ -59,7 +59,7 @@ func (repo *TicketRepository) GetTickets(ctx context.Context, userID uuid.UUID, 
 
 	offset := (page - 1) * pageSize
 
-	if err := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset).Find(tickets, "user_id = ?", userID).Error; err != nil {
+	if err := repo.db.WithContext(ctx).Limit(pageSize).Offset(offset).Find(&tickets, "user_id = ?", userID).Error; err != nil {
 		return nil, errs.ErrTicketNotFound
 	}
 	return tickets, nil
