@@ -26,7 +26,6 @@ HEADER_TIMEOUT=10s
 
 .PHONY: export_env
 
-
 lint:
 	  $(GOLANGCILINT) run -v
 
@@ -50,7 +49,7 @@ migrate-down-test:
 	migrate -database $(DB_URL_TEST) -path internal/database/postgres/migration down
 
 testintegration:
-	go test -v ./... -run TestUpdateUserHandler -tags=integration
+	go test -v ./... -tags=integration
 
 export_env:
 	@echo "export POSTGRES_HOST=$(POSTGRES_HOST)" > set_env.sh
@@ -65,6 +64,7 @@ export_env:
 	@echo "export REST_PORT=$(REST_PORT)" >> set_env.sh
 	@echo "export ACCESS_TOKEN_EXPIRE=$(ACCESS_TOKEN_EXPIRE)" >> set_env.sh
 	@echo "export ADDRESS=$(ADDRESS)" >> set_env.sh
+	@echo "export HEADER_TIMEOUT=$(HEADER_TIMEOUT)" >> set_env.sh
 	@echo "export REDIS_HOST=$(REDIS_HOST)" >> set_env.sh
 	@echo "export REDIS_PORT=$(REDIS_PORT)" >> set_env.sh
 	@echo "export REDIS_PASSWORD=$(REDIS_PASSWORD)" >> set_env.sh
