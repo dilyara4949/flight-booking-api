@@ -36,15 +36,15 @@ func NewAPI(cfg config.Config, database *gorm.DB, cache *redis.Client, producer 
 			}
 			users := v1.Group("/users")
 			{
-				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
-				{
-					admin.GET("/", GetUsersHandler(userService))
-				}
 				private := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.Cache(cache, cfg.Redis.LongCacheDuration))
 				{
 					private.GET("/:userId", GetUserHandler(userService))
 					private.PUT("/:userId", UpdateUserHandler(userService))
 					private.DELETE("/:userId", DeleteUserHandler(userService))
+				}
+				admin := users.Use(middleware.JWTAuth(cfg.JWTTokenSecret), middleware.AccessCheck(AdminRole), middleware.Cache(cache, cfg.Redis.ShortCacheDuration))
+				{
+					admin.GET("/", GetUsersHandler(userService))
 				}
 			}
 

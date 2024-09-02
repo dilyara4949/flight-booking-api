@@ -25,6 +25,7 @@ REDIS_LONG_CACHE_DURATION=5m
 REDIS_SHORT_CACHE_DURATION=5m
 REDIS_DATABASE=0
 REDIS_POOL_SIZE=10
+HEADER_TIMEOUT=10s
 
 .PHONY: export_env
 
@@ -77,4 +78,5 @@ export_env:
 	@echo "export REDIS_LONG_CACHE_DURATION=$(REDIS_LONG_CACHE_DURATION)" >> set_env.sh
 	@echo "export REDIS_DATABASE=$(REDIS_DATABASE)" >> set_env.sh
 	@echo "export REDIS_POOL_SIZE=$(REDIS_POOL_SIZE)" >> set_env.sh
+	@echo "export HEADER_TIMEOUT=$(HEADER_TIMEOUT)" >> set_env.sh
 	@chmod +x set_env.sh
